@@ -8,7 +8,12 @@ const SVGForm = ({handleFormSubmission, handleShapeChange}) => {
   return (
     <form className='svgForm' onSubmit={handleFormSubmission}>
         <select name="" id="" onChange={handleShapeChange}>
-          {shapes.map((shape) => {return (<option id={shape} value={shape === "Rectangle" ? "rect" : shape.toLowerCase()}>{shape} </option>)})}
+          {shapes.map((shape) => {
+            return (
+            <option id={shape} value={shape === "Rectangle" ? "rect" : shape.toLowerCase()}>
+              {shape} 
+            </option>)
+          })}
           
           {/* 
           
