@@ -1,13 +1,13 @@
 import React from "react";
-import RectAttributes from './ShapeAttributes/RectAttributes'
-import { ContextProvider } from "./SVGContext"
+import Rect from './ShapeAttributes/Rect'
+import { Context } from "./SVGContext"
 
 const RECT = 'rect'
 const Shape = (props) => {
   const {shape} = props
   switch (shape) {
     case RECT:
-      return <RectAttributes />
+      return <Rect />
     default:
       return (
       <div>
