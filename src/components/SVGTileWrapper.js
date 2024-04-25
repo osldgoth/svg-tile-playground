@@ -11,16 +11,15 @@ const SVGTileWrapper = () => {
   const handleFormSubmission = () => {
     //other attributes
     setAllSVGs([...allSVGs, {SVG}])
-    console.log(allSVGs)
+    //console.log(allSVGs)
   }
 
   const handleShapeChange = (event) => {
     event.preventDefault()
-    setSVG(prevSVG => ({
+    setSVG(prevSVG => ({ //this may be wrong, FYI
       ...prevSVG,
       shapeName: event.target.value
     }))
-    console.log(SVG)
   }
 
   return (
