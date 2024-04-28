@@ -2,11 +2,12 @@ import React, {useState, createContext} from 'react'
 const Context = createContext()
 
 const SVGContextProvider = (props) => {
-  const [SVG, setSVG] = useState({})
+  const [shapeName, setShapeName] = useState("")
   const [allSVGs, setAllSVGs] = useState([])
+  const [attributes, setAttributes] = useState({})
 
   return (
-    <Context.Provider value={{SVG, setSVG, allSVGs, setAllSVGs}}>
+    <Context.Provider value={{shapeName, setShapeName, allSVGs, setAllSVGs, attributes, setAttributes}}>
       {props.children}
     </Context.Provider>
   )

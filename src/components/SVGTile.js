@@ -1,10 +1,15 @@
 
 import React from 'react'
 
-const SVGTile = () => {
+const SVGTile = ({ currentSVG }) => {
+  const { svg, shapeName, attributes } = currentSVG;
+
   return (
-    <div>SVGTile</div>
-  )
+    <div className="svg-tile">
+      <h2>{shapeName}</h2>
+      {svg}
+    </div>
+  );
 }
 
 export default SVGTile

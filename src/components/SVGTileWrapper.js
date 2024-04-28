@@ -7,31 +7,32 @@ import { Context } from "./SVGContext"
 uuidv4()
 
 const SVGTileWrapper = () => {
-  const {SVG, setSVG, allSVGs, setAllSVGs} = useContext(Context)
-  const handleFormSubmission = () => {
-    //other attributes
-    setAllSVGs([...allSVGs, {SVG}])
-    //console.log(allSVGs)
+  const {shapeName, setShapeName, allSVGs, setAllSVGs, attributes} = useContext(Context)
+  const handleFormSubmission = (event) => {
+    event.preventDefault()
+    const shape = React.createElement(shapeName, {...attributes, fill: "none", strokeWidth: 1, stroke: "red" })
+    const svg = React.createElement('svg', {id: uuidv4(), key: uuidv4(), width: 378, height: 378, style:{border: "solid red 1px"}}, shape)
+  
+    setAllSVGs([...allSVGs, {svg, shapeName, attributes}]) 
   }
 
   const handleShapeChange = (event) => {
     event.preventDefault()
-    setSVG(prevSVG => ({ //this may be wrong, FYI
-      ...prevSVG,
-      shapeName: event.target.value
-    }))
+    setShapeName(event.target.value)
   }
 
   return (
     <div>
+      <h1> basic site info - Not an exhaustive SVG builder</h1>
       <SVGForm uuidv4={uuidv4} handleShapeChange={handleShapeChange} handleFormSubmission={handleFormSubmission}/>
-      {allSVGs.map((currentSVG, id) => {
+
+      {allSVGs.map(currentSVG => {
         return (
-          <SVGTile id={id} currentSVG={currentSVG} />
+          <SVGTile id={uuidv4()} key={uuidv4()} currentSVG={currentSVG} />
         )
       })}
     </div>
   )
 }
-// document.createElementNS("http://www.w3.org/2000/svg", "{first-select-value}")
+
 export default SVGTileWrapper

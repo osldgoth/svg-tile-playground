@@ -1,7 +1,0 @@
-export {default as Rect} from './ShapeAttributes/Rect'
-export {default as Circle} from './ShapeAttributes/Circle'
-export {default as Ellipse} from './ShapeAttributes/Ellipse'
-export {default as Line} from './ShapeAttributes/Line'
-export {default as Polyline} from './ShapeAttributes/Polyline'
-export {default as Polygon} from './ShapeAttributes/Polygon'
-export {default as Path} from './ShapeAttributes/Path'
