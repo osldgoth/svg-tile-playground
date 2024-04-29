@@ -23,4 +23,3 @@ const LabelInput = ({parameter, label, type}) => {
 }
 
 export default LabelInput
-//src\components\LabelInput.js
