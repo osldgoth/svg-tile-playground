@@ -3,7 +3,9 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import { SVGContextProvider } from "./components/SVGContext"
-//import "bootstrap@5.3.3/dist/css/bootstrap.min.css"
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap-icons/font/bootstrap-icons.css';
+
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
