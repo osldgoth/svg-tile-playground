@@ -7,31 +7,38 @@ import { Context } from "./SVGContext"
 uuidv4()
 
 const SVGTileWrapper = () => {
-  const {shapeName, setShapeName, allSVGs, setAllSVGs, attributes} = useContext(Context)
+  const {shapeName, setShapeName, allSVGs, setAllSVGs, attributes, setAttributes} = useContext(Context)
+
   
-  const handleFormSubmission = (event) => {
-    event.preventDefault()
-    const shape = React.createElement(shapeName, {...attributes, fill: "none", strokeWidth: 1, stroke: "red" })
-    const svg = React.createElement('svg', {id: uuidv4(), key: uuidv4(), width: 378, height: 378, style:{border: "solid red 1px"}}, shape)
-  //clear shapeName and attributes?
-    setAllSVGs([{svg, shapeName, attributes}, ...allSVGs]) //add new svg to beginning of array
+
+  const handleDelete = (event) =>{
+    //setAllSVGs
+    const indexAsInt = parseInt(event.target.getAttribute('data-index'))
+    setAllSVGs([...allSVGs.filter((_, currentIndex) => currentIndex !== indexAsInt )])
   }
 
-  const handleShapeChange = (event) => {
-    event.preventDefault()
-    setShapeName(event.target.value)
+  const handleEdit = (event) =>{
+    const index = event.target.getAttribute('data-index')
+    const attributes = allSVGs[index].attributes
+    const shapeName = allSVGs[index].shapeName
+    //set shapeSelect
+    setShapeName(shapeName)
+    //set inputs
+    setAttributes(attributes)
+    //then delete out of allsvgs?
   }
-
-  const allSVGsReversed = allSVGs.reverse()
 
   return (
-    <div>
-      <h1>The following is not an exhaustive SVG builder, but rather a very basic and rudimentary one.</h1>
-      <SVGForm uuidv4={uuidv4} handleShapeChange={handleShapeChange} handleFormSubmission={handleFormSubmission}/>
+    <div className='container mt-3'>
+      <h3>SVG playground.</h3> 
+      <p>The following is not an exhaustive SVG builder, but rather a very basic and rudimentary one. 
+        I have created it simply for myself to become more familiar with SVG's and along the way React by building it.
+      </p>
+      <SVGForm uuidv4={uuidv4}/>
 
-      {allSVGsReversed.map(currentSVG => {
+      {allSVGs.map((currentSVG, index)=> { 
         return (
-          <SVGTile id={uuidv4()} key={uuidv4()} currentSVG={currentSVG} />
+          <SVGTile index={index} uuidv4={uuidv4} currentSVG={currentSVG} handleDelete={handleDelete} handleEdit={handleEdit}/>
         )
       })}
     </div>
