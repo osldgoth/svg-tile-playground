@@ -13,7 +13,6 @@ const Shape = (props) => {
   const {shape} = props
   switch (shape) {
     case RECT:
-      // return <Rect />
       return <div>
               <LabelInput parameter="x" label="" type="number" />
               <LabelInput parameter="y" label="" type="number" />
