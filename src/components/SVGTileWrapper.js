@@ -7,8 +7,7 @@ import { Context } from "./SVGContext"
 uuidv4()
 
 const SVGTileWrapper = () => {
-  const {shapeName, setShapeName, allSVGs, setAllSVGs, attributes, setAttributes} = useContext(Context)
-
+  const {currentSVG, setCurrentSVG, shapeName, setAllSVGs, attributes, allSVGs, setShapeName, setAttributes} = useContext(Context)
   
 
   const handleDelete = (event) =>{
@@ -18,14 +17,15 @@ const SVGTileWrapper = () => {
   }
 
   const handleEdit = (event) =>{
-    const index = event.target.getAttribute('data-index')
-    const attributes = allSVGs[index].attributes
-    const shapeName = allSVGs[index].shapeName
+    const indexAsInt = parseInt(event.target.getAttribute('data-index'))
+    const attributes = allSVGs[indexAsInt].attributes
+    const shapeName = allSVGs[indexAsInt].shapeName
     //set shapeSelect
     setShapeName(shapeName)
     //set inputs
     setAttributes(attributes)
-    //then delete out of allsvgs?
+    //then delete svg out of allsvgs to replace with updated svg
+    setAllSVGs([...allSVGs.filter((_, i) => i !== indexAsInt)])
   }
 
   return (
@@ -34,11 +34,11 @@ const SVGTileWrapper = () => {
       <p>The following is not an exhaustive SVG builder, but rather a very basic and rudimentary one. 
         I have created it simply for myself to become more familiar with SVG's and along the way React by building it.
       </p>
-      <SVGForm uuidv4={uuidv4}/>
+      <SVGForm/>
 
-      {allSVGs.map((currentSVG, index)=> { 
+      {allSVGs.map(({shapeName, attributes}, index)=> { 
         return (
-          <SVGTile index={index} uuidv4={uuidv4} currentSVG={currentSVG} handleDelete={handleDelete} handleEdit={handleEdit}/>
+          <SVGTile index={index} key={uuidv4()} shapeName={shapeName} attributes={attributes} handleDelete={handleDelete} handleEdit={handleEdit}/>
         )
       })}
     </div>
