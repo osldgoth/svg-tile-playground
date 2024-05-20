@@ -4,9 +4,10 @@ import { Context } from "./SVGContext"
 const MIN = 0
 const MAX = 378
 
-const LabelInput = ({parameter, label, type}) => {
-  const {attributes, setAttributes} = useContext(Context)
-  
+const LabelInput = ({inputkey, parameter, label, type, inputReference}) => { 
+  const {currentSVG, setCurrentSVG, shapeName, setAllSVGs, attributes, allSVGs, setShapeName, setAttributes} = useContext(Context)
+
+
   const handleAttributeChange = (event, parameter) => {
     event.preventDefault()
     setAttributes(prevAttributes =>({
@@ -15,13 +16,16 @@ const LabelInput = ({parameter, label, type}) => {
     }))
   }
 
+
+
   return (
-    <div>
-      <label htmlFor={parameter}>{label}{parameter}</label>
+    <div key={inputkey}>
+      <label htmlFor={parameter}>{label}</label>
       <input id={parameter} type={type} min={MIN} max={MAX} required 
              onChange={event => handleAttributeChange(event, parameter)} 
              value={attributes[parameter]}
-             placeholder={`min ${MIN} to max ${MAX}`}/>
+             placeholder={`min ${MIN} to max ${MAX}`}
+             ref={inputReference}/> 
     </div>
   )
 }
