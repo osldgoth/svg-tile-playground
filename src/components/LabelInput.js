@@ -5,7 +5,7 @@ const MIN = 0
 const MAX = 378
 
 const LabelInput = ({inputkey, parameter, label, type, inputReference}) => { 
-  const {currentSVG, setCurrentSVG, shapeName, setAllSVGs, attributes, allSVGs, setShapeName, setAttributes} = useContext(Context)
+  const { attributes, setAttributes} = useContext(Context) //currentSVG, setCurrentSVG, shapeName, setAllSVGs, allSVGs, setShapeName,
 
 
   const handleAttributeChange = (event, parameter) => {

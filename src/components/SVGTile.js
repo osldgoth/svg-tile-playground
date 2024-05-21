@@ -1,11 +1,9 @@
-import React, { useContext} from 'react'
-import { Context } from "./SVGContext"
+import React from 'react'
 import {v4 as uuidv4} from 'uuid'
 
 
 
 const SVGTile = ({index, shapeName, attributes, handleDelete, handleEdit}) => {
-  // const {currentSVG, setCurrentSVG, shapeName, setAllSVGs, attributes, allSVGs, setShapeName, setAttributes} = useContext(Context)
   let shape = null;
   if (typeof shapeName === 'string' && shapeName.trim() !== '') {
     shape = React.createElement(shapeName, {...attributes, fill: "none", strokeWidth: 1, stroke: "red" })

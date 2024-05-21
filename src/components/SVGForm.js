@@ -6,7 +6,7 @@ import SVGTile from './SVGTile'
 
 
 const SVGForm = () => {
-  const {currentSVG, setCurrentSVG, shapeName, setAllSVGs, attributes, allSVGs, setShapeName, setAttributes} = useContext(Context)
+  const {shapeName, setAllSVGs, attributes, allSVGs, setShapeName, setAttributes} = useContext(Context) //currentSVG, setCurrentSVG, 
   const shapes = ["Rectangle", "Circle", 'Ellipse', 'Line', 'Polyline', 'Polygon', 'Path']
 
   const handleFormSubmission = (event) => {

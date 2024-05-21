@@ -7,7 +7,7 @@ import { Context } from "./SVGContext"
 uuidv4()
 
 const SVGTileWrapper = () => {
-  const {currentSVG, setCurrentSVG, shapeName, setAllSVGs, attributes, allSVGs, setShapeName, setAttributes} = useContext(Context)
+  const {setAllSVGs, allSVGs, setShapeName, setAttributes} = useContext(Context) //currentSVG, setCurrentSVG, shapeName, attributes,
   
 
   const handleDelete = (event) =>{
