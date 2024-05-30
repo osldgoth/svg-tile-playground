@@ -11,9 +11,20 @@ const SVGContextProvider = (props) => {
     'svg', 
     {id: uuidv4(), key: uuidv4(), width: 378, height: 378, style:{border: "solid green 1px"}}
   ))
+  const [contextCommand, setContextCommand] = useState("")
+  const [coordinateDataContext, setcoordinateDataContext] = useState('')
 
   return (
-    <Context.Provider value={{shapeName, setShapeName, currentSVG, setCurrentSVG, allSVGs, setAllSVGs, attributes, setAttributes}}>
+    <Context.Provider value={
+      {
+        shapeName, setShapeName, 
+        currentSVG, setCurrentSVG, 
+        allSVGs, setAllSVGs, 
+        attributes, setAttributes, 
+        contextCommand, setContextCommand,
+        coordinateDataContext, setcoordinateDataContext
+      }
+    }>
       {props.children}
     </Context.Provider>
   )
