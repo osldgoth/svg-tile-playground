@@ -6,28 +6,36 @@ import SVGTile from './SVGTile'
 
 
 const SVGForm = () => {
-  const {shapeName, setAllSVGs, attributes, allSVGs, setShapeName, setAttributes} = useContext(Context) //currentSVG, setCurrentSVG, 
+  const {shapeName, setShapeName, 
+         currentSVG, setCurrentSVG, 
+         allSVGs, setAllSVGs, 
+         attributes, setAttributes, 
+         contextCommand, setContextCommand,
+         coordinateDataContext, setcoordinateDataContext} = useContext(Context) //currentSVG, setCurrentSVG, 
   const shapes = ["Rectangle", "Circle", 'Ellipse', 'Line', 'Polyline', 'Polygon', 'Path']
 
   const handleFormSubmission = (event) => {
     event.preventDefault()
   
     setAllSVGs([{shapeName, attributes}, ...allSVGs]) //add new svg to beginning of array
-    //clear shapeName and attributes
+      //reset state to defaults
     setShapeName("")
     setAttributes({})
+    setcoordinateDataContext('')
+    setContextCommand('')
   }
 
   const handleShapeChange = (event) => {
-    //event.preventDefault()
-
     setShapeName(event.target.value)
+      //reset state to defaults
     setAttributes({})
+    setcoordinateDataContext('')
+    setContextCommand('')
   }
   
   return (
     <form id={uuidv4()} className='svgForm' onSubmit={handleFormSubmission}>
-      <select className='mb-3' name="" id="shapeSelection" onChange={handleShapeChange} value={shapeName}>
+      <select className='mb-1' name="" id="shapeSelection" onChange={handleShapeChange} value={shapeName}>
         <option id={uuidv4()} key={uuidv4()} value="" disabled>Select a shape</option>
         {shapes.map((shape) => {
           return (
