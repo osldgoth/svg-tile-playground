@@ -33,6 +33,7 @@ const SVGTileWrapper = () => {
       <h3>SVG playground.</h3> 
       <p>The following is not an exhaustive SVG builder, but rather a very basic and rudimentary one. 
         I have created it simply for myself to become more familiar with SVG's and along the way React by building it.
+        For now I am sticking to absolute coordinates for simplicity.
       </p>
       <SVGForm/>
 
