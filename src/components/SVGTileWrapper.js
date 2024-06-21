@@ -7,7 +7,14 @@ import { Context } from "./SVGContext"
 uuidv4()
 
 const SVGTileWrapper = () => {
-  const {setAllSVGs, allSVGs, setShapeName, setAttributes} = useContext(Context) //currentSVG, setCurrentSVG, shapeName, attributes,
+  const {
+    shapeName, setShapeName, 
+    currentSVG, setCurrentSVG, 
+    allSVGs, setAllSVGs, 
+    attributes, setAttributes, 
+    Command, setCommand,
+    coordinateData, setcoordinateData
+  } = useContext(Context) //currentSVG, setCurrentSVG, shapeName, attributes,
   
 
   const handleDelete = (event) =>{
@@ -18,7 +25,7 @@ const SVGTileWrapper = () => {
 
   const handleEdit = (event) =>{
     const indexAsInt = parseInt(event.target.getAttribute('data-index'))
-    const attributes = allSVGs[indexAsInt].attributes
+    const attributes = allSVGs[indexAsInt].attributes //{d, points etc}
     const shapeName = allSVGs[indexAsInt].shapeName
     //set shapeSelect
     setShapeName(shapeName)
@@ -37,9 +44,9 @@ const SVGTileWrapper = () => {
       </p>
       <SVGForm/>
 
-      {allSVGs.map(({shapeName, attributes}, index)=> { 
+      {allSVGs.map(({shapeName, attributes, coordinateData}, index)=> { 
         return (
-          <SVGTile index={index} key={uuidv4()} shapeName={shapeName} attributes={attributes} handleDelete={handleDelete} handleEdit={handleEdit}/>
+          <SVGTile key={index} index={index} shapeName={shapeName} attributes={attributes} coordinateData={coordinateData} handleDelete={handleDelete} handleEdit={handleEdit}/>
         )
       })}
     </div>
