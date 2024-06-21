@@ -1,6 +1,7 @@
-import React, { useRef, useEffect, useContext} from 'react';
+import React, { useRef, useEffect, useContext, useCallback} from 'react';
 import  LabelInput from './LabelInput'
 import { Context } from './SVGContext';
+import {v4 as uuidv4} from 'uuid'
 
 
 const basicShapeConfig = {
@@ -34,7 +35,7 @@ const basicShapeConfig = {
 const advancedShapeConfig = {
   POLYLINE: [
     { 
-      attribute: "points=",
+      attribute: "points",
       label: "A list of points.",
       parameters: [
         { parameter: 'x', label: "X Coordinate" },
@@ -44,7 +45,7 @@ const advancedShapeConfig = {
   ],
   POLYGON: [
     { 
-      attribute: "points=",
+      attribute: "points",
       label: "A list of points.",
       parameters: [
         { parameter: 'x', label: "X Coordinate" },
@@ -54,7 +55,7 @@ const advancedShapeConfig = {
   ],
   PATH: [
     { 
-      attribute: "d=",
+      attribute: "d",
       label: "Path Data.",
       commands: [ 
         {
@@ -133,7 +134,7 @@ const advancedShapeConfig = {
           parameters: [
             { parameter: 'rx', label: "Radius X" }, 
             { parameter: 'ry', label: "Radius Y" },
-            { parameter: 'x-axis-rotation(0-360)', label: "X Axis Rotation" },
+            { parameter: 'x-axis-rotation', label: "X Axis Rotation" },
             { parameter: 'x', label: "X Coordinate" },
             { parameter: 'y', label: "Y Coordinate" }
           ], 
@@ -152,43 +153,87 @@ const advancedShapeConfig = {
 }
 
 const ShapeInputs = ({ shape }) => {
-  const {attributes, setAttributes, contextCommand, setContextCommand, coordinateDataContext, setcoordinateDataContext} = useContext(Context)
-  const dynamicRefMap = useRef([]);
-  const commandReference = useRef('')
-  
+  const {attributes, setAttributes} = useContext(Context)
+  const dynamicRefMap = useRef({});
+
+  const initRefs = useCallback(() => {
+    const refMap = React.createRef()
+
+    basicShapeConfig[shape]?.forEach(({ parameter }) => refMap[parameter] = React.createRef())
+    advancedShapeConfig[shape]?.forEach(({ commands: pathCommands, parameters: polyParameters }) => {
+      pathCommands?.forEach(({ command, parameters: pathParameters }) => {
+        if(!refMap[command]) refMap[command] = {}
+          
+        pathParameters?.forEach(({ parameter })=> refMap[command][parameter] = React.createRef())
+      })
+      
+      polyParameters?.forEach(({ parameter }) => {
+        if(!refMap[shape]) refMap[shape] = {}
+        refMap[shape][parameter] = React.createRef()})
+    })
+
+    return refMap;
+  }, [shape])
+
   useEffect(() => {
-    // Clear existing refs if shape changes
-    dynamicRefMap.current = {};
-    const config = advancedShapeConfig[shape] || basicShapeConfig[shape] || null
-    if (config) {
-      config.forEach((_, index) => {
-        dynamicRefMap.current[index] = React.createRef();
-      });
-    }
-  }, [shape]);
+    dynamicRefMap.current = initRefs()
+  }, [initRefs]);
 
-  const handleCommandChange = (event) => {
-    setContextCommand(event.target.value)
-    commandReference.current = event.target.value //to use value immediately
-  }
+  // const handleCommandChange = (event) => {
+  //   setCommand(event.target.value)
+  //   commandReference.current = event.target.value //to use value immediately
+  // }
 
-  const coordinateData = () => {// try to optimise later
-    //require input
-    const inputElements = document.querySelectorAll('form input')
+  const addCoordinateData = (command) => {// try to optimise later
+    command = command.toLowerCase()
+
+    //require input on advanced shape(poly/path) via non-submit button
+    const inputElements = Array.from(document.querySelectorAll(`form input`)).filter(inputElement => 
+      inputElement.id.split(/\s+/).includes(command)
+    )
     let validity = [];
-    inputElements && 
-    (
+    //input elements for path dont have correct ref
+    inputElements && (() => {
       inputElements.forEach((element, index) => {
+        element.setAttribute('required', 'required')
         validity[index] = element.checkValidity()
       })
-    )
-    const element = inputElements[validity.indexOf(false)]
-    if(element){
-      element.reportValidity()
-    }
-    if(!validity.includes(false)){
-      setcoordinateDataContext((previousData) => [...previousData, ' ', contextCommand, Object.values(attributes).join(',')])
-      setAttributes({})
+
+      const invalidElement = inputElements[validity.indexOf(false)]
+      if(invalidElement){
+        invalidElement.reportValidity()
+      }
+      inputElements.forEach(element => {
+        element.removeAttribute('required')
+      })
+    })();
+
+    if(!validity.includes(false)){ //all inputs are valid
+      console.log("set attributes from shapeinputs", attributes)
+      const {d = '', points = '', poly = {}, path = {}, ...rest} = attributes //rest would be basic shape info such as RECT, CIRCLE etc
+      const dPrefix = (d.trim().length === 0 && 
+                     !d.trim().startsWith('M', 0))? 'M 0 0': ''
+      
+      setAttributes(
+        {
+          "d": dPrefix + d,
+          "points": points.trim() + " " + Object.values(poly).join(', '),
+          "poly": {},
+          "path": {
+            "m":{},
+            "l":{},
+            "h":{},
+            "v":{},
+            "c":{},
+            "s":{},
+            "q":{},
+            "t":{},
+            "a":{},
+            "z":{}
+          },
+          ...rest
+        }
+      )
     }
   }
 
@@ -200,65 +245,93 @@ const ShapeInputs = ({ shape }) => {
     <div>
       {basicShapeConfig[shape]?.map(({ parameter, label }, index) => 
         <LabelInput
-          inputkey={ parameter }
+          key={ parameter }
           parameter={ parameter }
           label={ label }
-          inputReference={ dynamicRefMap.current[index] }
+          inputReference={ dynamicRefMap.current[parameter] }
+          isrequired={'required'}
+          command={shape}
         />
       )}
-      {advancedShapeConfig[shape]?.map(({ attribute, label, commands, parameters }, index) => {
+      {advancedShapeConfig[shape]?.map(({ attribute, label, commands: pathCommands, parameters: polyParameters }, index) => {
         return (
           <div key={attribute}>
-            <label htmlFor="shapeData">{label}</label>
-            <p id='shapeData'>{attribute}{coordinateDataContext}</p>
-            {commands && 
+            {pathCommands && //Path
               (
                 <div>
-                  <select className='mb-1' 
-                          name='' 
-                          id='commandSelection' 
-                          onChange={handleCommandChange} 
-                          value={contextCommand}>
-                            
-                    <option id={index} key={index} value='' disabled>Select a command</option>
-                    {commands.map(({command, name}) => 
+                  {/* import {v4 as uuidv4} from 'uuid' */}
+                  {/* { attribute, label, commands: pathCommands, parameters: polyParameters }, index*/}
+                  <div className="container" id={uuidv4()} key={uuidv4()}>
+                    <label name={label} value={attribute}>
+                      <p id='shapeData'>
+                        {label}
+                        <br />
+                        {attribute}= ' {attributes.command?.attribute}'
+                      </p>
+                    </label>
+                    {pathCommands.map(({command, name, parameters: pathParameters, flags}) =>
                       {
-                        return <option id={command} key={command} value={command}>{name}</option>
-                      }
-                    )}
-                  </select>
-                  <div>
-                    <fieldset name='parametersForCommand' id=''>
-                      {commands.filter(({command})=> command === commandReference.current)[0]?.parameters?.map(({ parameter, label }, index) => (
-                            <LabelInput
-                            inputkey={ parameter }
-                            parameter={ parameter }
-                            label={ label }
-                            inputReference={ null }
-                            />
-                        ))
-                        }
-                      <button type='button' id='commandsInput' onClick={coordinateData}>Add {commandReference.current}</button>
-                    </fieldset>
+                        
+                        return (
+                          <div className="card" key={uuidv4()}>
+                            <div className="card-header">
+                                {name}
+                            </div>
+                            <div className="card-body">
+                            {pathParameters?.map(({ parameter, label}, index) => 
+                              <LabelInput 
+                                key={ parameter }
+                                parameter={ parameter }
+                                label={ label }
+                                inputReference={ dynamicRefMap.current[command][parameter]}
+                                isrequired={null}
+                                command={command}
+                              />
+                            
+                            )
+                            }
+                            {flags?.map(({ flag, label }) =>{
+                              return (
+                                <label key={uuidv4()}>
+                                  {label} 
+                                  <input type='checkbox' 
+                                         value={flag} 
+                                  /> 
+                                </label>
+                              )}
+                              )
+                            }
+                            </div>
+                            <div className="card-footer">
+                              <button type='button' id='commandsInput' onClick={() => addCoordinateData(command) }>Add {command}</button>
+                            </div>
+                          </div>
+                        )
+                      })
+                    }
                   </div>
                 </div>
               )
             }
-            {parameters && 
+            {polyParameters && //Polyline/Polygon
               (
                 <div>
+                  <label htmlFor="shapeData">{label}</label>
+            <p id='shapeData'>{attribute}= '{attributes.points}'</p>
                   <fieldset name='parametersForCommand' id=''>
-                    {parameters.map(({ parameter, label }, index) => 
+                    {polyParameters.map(({ parameter, label }, index) => 
                       (
-                        <LabelInput
-                        inputkey={ parameter }
+                        <LabelInput //recreate a labelinput for these to rework set attributes
+                        key={ parameter }
                         parameter={ parameter }
                         label={ label }
-                        inputReference={ null }
+                        inputReference={ dynamicRefMap.current[shape][parameter] }
+                        isrequired={null}
+                        command={"poly"}
                         />
                       )
                     )}
-                    <button type='button' id='parametersInput' onClick={coordinateData}>Add Coordinate</button>
+                    <button type='button' id='parametersInput' onClick={() => addCoordinateData("poly")}>Add Coordinate {Object.values(attributes["poly"] || {}).join(", ")}</button>
                   </fieldset>
                 </div>
               )
