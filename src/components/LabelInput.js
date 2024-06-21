@@ -4,28 +4,37 @@ import { Context } from "./SVGContext"
 const MIN = 0
 const MAX = 378
 
-const LabelInput = ({inputkey, parameter, label, inputReference}) => { 
-  const { attributes, setAttributes} = useContext(Context) //currentSVG, setCurrentSVG, shapeName, setAllSVGs, allSVGs, setShapeName,
+const LabelInput = ({parameter, label, inputReference, isrequired, command}) => { 
+  const { attributes, setAttributes} = useContext(Context) //currentSVG, setCurrentSVG, shapeName, setAllSVGs, allSVGs, setShapeName,, coordinateData
+  command = command.toLowerCase()
 
-
-  const handleAttributeChange = (event, parameter) => {
+  const inputID = parameter + ' ' + command
+  //console.log("inputReference for command", command, inputReference)
+  //console.log("filtered with command")
+  const handleAttributeChange = (event, parameter, command) => {
     event.preventDefault()
-    setAttributes(prevAttributes =>({
-      ...prevAttributes, 
-      [parameter]: event.target.value
-    }))
+    const {d = '', points = '', ...rest} = attributes //rest would be basic shape info such as poly, path, RECT, CIRCLE etc
+    setAttributes(
+      {
+        "d": d,
+        "points": points,
+        [command]: {
+          ...rest[command],
+          [parameter]: event.target.value
+        }
+      }
+    )
   }
 
-
-
   return (
-    <div key={inputkey}>
+    <div>
       <label htmlFor={parameter}>{label}</label>
-      <input id={parameter} type='number' min={MIN} max={MAX} required //when advnced shape, not required?
-             onChange={event => handleAttributeChange(event, parameter)} 
-             value={attributes[parameter] || ''}
+      <input id={inputID} type='number' min={MIN} max={MAX} 
+             required={isrequired}
+             onChange={event => handleAttributeChange(event, parameter, command)}
+             value={attributes[command]?.[parameter] || ''}
              placeholder={`min ${MIN} to max ${MAX}`}
-             ref={inputReference}/> 
+             ref={inputReference}/>
     </div>
   )
 }
