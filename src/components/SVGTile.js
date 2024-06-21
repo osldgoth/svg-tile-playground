@@ -1,17 +1,34 @@
 import React from 'react'
-import {v4 as uuidv4} from 'uuid'
-
-
 
 const SVGTile = ({index, shapeName, attributes, handleDelete, handleEdit}) => {
+  shapeName = shapeName.toLowerCase()
   let shape = null;
+  const {d, points} = attributes
   if (typeof shapeName === 'string' && shapeName.trim() !== '') {
-    shape = React.createElement(shapeName, {...attributes, fill: "none", strokeWidth: 1, stroke: "red" })
+    shape = React.createElement(shapeName, 
+      {
+        ...attributes[shapeName],
+        d,
+        points,
+        fill: "none",
+        strokeWidth: 1,
+        stroke: "red"
+      }
+    )
   }
-  const currentsvg = React.createElement('svg', {id: uuidv4(), key: uuidv4(), width: 378, height: 378, style:{border: "solid green 1px"}}, shape)
+  
+  const currentsvg = React.createElement('svg', 
+    {
+      width: 378,
+      height: 378,
+      viewBox:"0 0 400 400",
+      style:{border: "solid blue 1px"}
+    },
+    shape
+  )
 
   return (
-    <div className="container" id={uuidv4()} key={uuidv4()}>
+    <div className="container">
       <div className="card">
         <div className="card-header">
           <h2>{shapeName}</h2>
