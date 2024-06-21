@@ -3,16 +3,34 @@ import {v4 as uuidv4} from 'uuid'
 
 const Context = createContext()
 
+const defaultsvg = React.createElement(
+  'svg', 
+  {id: uuidv4(), key: uuidv4(), width: 378, height: 378, style:{border: "solid pink 1px"}}
+)
+const defaultAttributes = {
+  "d":'',
+  "points":'',
+  "poly": {},
+  "path": {
+    "m":{},
+    "l":{},
+    "h":{},
+    "v":{},
+    "c":{},
+    "s":{},
+    "q":{},
+    "t":{},
+    "a":{},
+    "z":{}
+  }
+}
 const SVGContextProvider = (props) => {
   const [shapeName, setShapeName] = useState("")
   const [allSVGs, setAllSVGs] = useState([])
-  const [attributes, setAttributes] = useState({})
-  const [currentSVG, setCurrentSVG] = useState(React.createElement(
-    'svg', 
-    {id: uuidv4(), key: uuidv4(), width: 378, height: 378, style:{border: "solid green 1px"}}
-  ))
-  const [contextCommand, setContextCommand] = useState("")
-  const [coordinateDataContext, setcoordinateDataContext] = useState('')
+  const [attributes, setAttributes] = useState(defaultAttributes)
+  const [currentSVG, setCurrentSVG] = useState(defaultsvg) //not used?
+  const [Command, setCommand] = useState("")
+  const [coordinateData, setcoordinateData] = useState('')
 
   return (
     <Context.Provider value={
@@ -21,8 +39,8 @@ const SVGContextProvider = (props) => {
         currentSVG, setCurrentSVG, 
         allSVGs, setAllSVGs, 
         attributes, setAttributes, 
-        contextCommand, setContextCommand,
-        coordinateDataContext, setcoordinateDataContext
+        Command, setCommand,
+        coordinateData, setcoordinateData
       }
     }>
       {props.children}
