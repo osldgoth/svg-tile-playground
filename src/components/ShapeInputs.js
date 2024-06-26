@@ -1,7 +1,6 @@
-import React, { useRef, useEffect, useContext, useCallback} from 'react';
+import React, { useContext } from 'react';
 import  LabelInput from './LabelInput'
 import { Context } from './SVGContext';
-import {v4 as uuidv4} from 'uuid'
 
 
 const basicShapeConfig = {
@@ -132,11 +131,11 @@ const advancedShapeConfig = {
           command: 'A', 
           name: "Arc",
           parameters: [
-            { parameter: 'rx', label: "Radius X" }, 
-            { parameter: 'ry', label: "Radius Y" },
-            { parameter: 'x-axis-rotation', label: "X Axis Rotation" },
-            { parameter: 'x', label: "X Coordinate" },
-            { parameter: 'y', label: "Y Coordinate" }
+            { parameter: 'rx', label: "Radius X"}, 
+            { parameter: 'ry', label: "Radius Y"},
+            { parameter: 'x-axis-rotation', label: "X Axis Rotation"},
+            { parameter: 'x', label: "X Coordinate"},
+            { parameter: 'y', label: "Y Coordinate"}
           ], 
           flags: [
             { flag: 'large-arc-flag', label: "Large Arc Flag"},
@@ -154,35 +153,6 @@ const advancedShapeConfig = {
 
 const ShapeInputs = ({ shape }) => {
   const {attributes, setAttributes} = useContext(Context)
-  const dynamicRefMap = useRef({});
-
-  const initRefs = useCallback(() => {
-    const refMap = React.createRef()
-
-    basicShapeConfig[shape]?.forEach(({ parameter }) => refMap[parameter] = React.createRef())
-    advancedShapeConfig[shape]?.forEach(({ commands: pathCommands, parameters: polyParameters }) => {
-      pathCommands?.forEach(({ command, parameters: pathParameters }) => {
-        if(!refMap[command]) refMap[command] = {}
-          
-        pathParameters?.forEach(({ parameter })=> refMap[command][parameter] = React.createRef())
-      })
-      
-      polyParameters?.forEach(({ parameter }) => {
-        if(!refMap[shape]) refMap[shape] = {}
-        refMap[shape][parameter] = React.createRef()})
-    })
-
-    return refMap;
-  }, [shape])
-
-  useEffect(() => {
-    dynamicRefMap.current = initRefs()
-  }, [initRefs]);
-
-  // const handleCommandChange = (event) => {
-  //   setCommand(event.target.value)
-  //   commandReference.current = event.target.value //to use value immediately
-  // }
 
   const addCoordinateData = (command) => {// try to optimise later
     command = command.toLowerCase()
@@ -192,7 +162,7 @@ const ShapeInputs = ({ shape }) => {
       inputElement.id.split(/\s+/).includes(command)
     )
     let validity = [];
-    //input elements for path dont have correct ref
+    
     inputElements && (() => {
       inputElements.forEach((element, index) => {
         element.setAttribute('required', 'required')
@@ -245,23 +215,22 @@ const ShapeInputs = ({ shape }) => {
     <div>
       {basicShapeConfig[shape]?.map(({ parameter, label }, index) => 
         <LabelInput
-          key={ parameter }
+          key={ parameter + "-" + index }
           parameter={ parameter }
           label={ label }
-          inputReference={ dynamicRefMap.current[parameter] }
           isrequired={'required'}
           command={shape}
         />
       )}
       {advancedShapeConfig[shape]?.map(({ attribute, label, commands: pathCommands, parameters: polyParameters }, index) => {
         return (
-          <div key={attribute}>
+          <div key={attribute  + "-" + label  + "-" + index}>
             {pathCommands && //Path
               (
                 <div>
                   {/* import {v4 as uuidv4} from 'uuid' */}
                   {/* { attribute, label, commands: pathCommands, parameters: polyParameters }, index*/}
-                  <div className="container" id={uuidv4()} key={uuidv4()}>
+                  <div className="container" id={attribute + index} key={label + "-" + index}>
                     <label name={label} value={attribute}>
                       <p id='shapeData'>
                         {label}
@@ -269,30 +238,29 @@ const ShapeInputs = ({ shape }) => {
                         {attribute}= ' {attributes.command?.attribute}'
                       </p>
                     </label>
-                    {pathCommands.map(({command, name, parameters: pathParameters, flags}) =>
+                    {pathCommands.map(({command, name, parameters: pathParameters, flags}, index) =>
                       {
                         
                         return (
-                          <div className="card" key={uuidv4()}>
+                          <div className="card" key={command + "-" + name + "-" + index}>
                             <div className="card-header">
                                 {name}
                             </div>
                             <div className="card-body">
                             {pathParameters?.map(({ parameter, label}, index) => 
                               <LabelInput 
-                                key={ parameter }
+                                key={ parameter + "-" + index }
                                 parameter={ parameter }
                                 label={ label }
-                                inputReference={ dynamicRefMap.current[command][parameter]}
                                 isrequired={null}
                                 command={command}
                               />
                             
                             )
                             }
-                            {flags?.map(({ flag, label }) =>{
+                            {flags?.map(({ flag, label }, index) =>{
                               return (
-                                <label key={uuidv4()}>
+                                <label key={flag + "-" + index}>
                                   {label} 
                                   <input type='checkbox' 
                                          value={flag} 
@@ -322,10 +290,9 @@ const ShapeInputs = ({ shape }) => {
                     {polyParameters.map(({ parameter, label }, index) => 
                       (
                         <LabelInput //recreate a labelinput for these to rework set attributes
-                        key={ parameter }
+                        key={ parameter + "-" + index }
                         parameter={ parameter }
                         label={ label }
-                        inputReference={ dynamicRefMap.current[shape][parameter] }
                         isrequired={null}
                         command={"poly"}
                         />
