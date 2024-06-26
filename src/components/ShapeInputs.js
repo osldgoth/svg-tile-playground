@@ -161,6 +161,7 @@ const ShapeInputs = ({ shape }) => {
     const inputElements = Array.from(document.querySelectorAll(`form input`)).filter(inputElement => 
       inputElement.id.split(/\s+/).includes(command)
     )
+
     let validity = [];
     
     inputElements && (() => {
@@ -179,29 +180,15 @@ const ShapeInputs = ({ shape }) => {
     })();
 
     if(!validity.includes(false)){ //all inputs are valid
-      console.log("set attributes from shapeinputs", attributes)
-      const {d = '', points = '', poly = {}, path = {}, ...rest} = attributes //rest would be basic shape info such as RECT, CIRCLE etc
-      const dPrefix = (d.trim().length === 0 && 
-                     !d.trim().startsWith('M', 0))? 'M 0 0': ''
-      
+      console.log("attributes from shapeinputs", attributes)
+      const {d = '', points = '', poly = {}, ...rest} = attributes //rest is path commands
+      const dPrefix = (d.trim().length === 0 && !d.trim().startsWith('M', 0)) ? 'M 0 0 ': ''
+      const dPart = command.toUpperCase() + " " + Object.values(rest[command] || {}).join(', ')
+                     
       setAttributes(
         {
-          "d": dPrefix + d,
+          "d": dPrefix + d + dPart,
           "points": points.trim() + " " + Object.values(poly).join(', '),
-          "poly": {},
-          "path": {
-            "m":{},
-            "l":{},
-            "h":{},
-            "v":{},
-            "c":{},
-            "s":{},
-            "q":{},
-            "t":{},
-            "a":{},
-            "z":{}
-          },
-          ...rest
         }
       )
     }
@@ -228,14 +215,13 @@ const ShapeInputs = ({ shape }) => {
             {pathCommands && //Path
               (
                 <div>
-                  {/* import {v4 as uuidv4} from 'uuid' */}
                   {/* { attribute, label, commands: pathCommands, parameters: polyParameters }, index*/}
                   <div className="container" id={attribute + index} key={label + "-" + index}>
                     <label name={label} value={attribute}>
                       <p id='shapeData'>
                         {label}
                         <br />
-                        {attribute}= ' {attributes.command?.attribute}'
+                        {attribute}= '{attributes.d}'
                       </p>
                     </label>
                     {pathCommands.map(({command, name, parameters: pathParameters, flags}, index) =>

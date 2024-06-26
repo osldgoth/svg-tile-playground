@@ -4,13 +4,11 @@ import { Context } from "./SVGContext"
 const MIN = 0
 const MAX = 378
 
-const LabelInput = ({parameter, label, inputReference, isrequired, command}) => { 
+const LabelInput = ({parameter, label, isrequired, command}) => { 
   const { attributes, setAttributes} = useContext(Context) //currentSVG, setCurrentSVG, shapeName, setAllSVGs, allSVGs, setShapeName,, coordinateData
   command = command.toLowerCase()
 
   const inputID = parameter + ' ' + command
-  //console.log("inputReference for command", command, inputReference)
-  //console.log("filtered with command")
   const handleAttributeChange = (event, parameter, command) => {
     event.preventDefault()
     const {d = '', points = '', ...rest} = attributes //rest would be basic shape info such as poly, path, RECT, CIRCLE etc
@@ -34,7 +32,7 @@ const LabelInput = ({parameter, label, inputReference, isrequired, command}) => 
              onChange={event => handleAttributeChange(event, parameter, command)}
              value={attributes[command]?.[parameter] || ''}
              placeholder={`min ${MIN} to max ${MAX}`}
-             ref={inputReference}/>
+      />
     </div>
   )
 }
