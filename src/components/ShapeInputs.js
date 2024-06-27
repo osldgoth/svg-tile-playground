@@ -157,13 +157,16 @@ const ShapeInputs = ({ shape }) => {
   const addCoordinateData = (command) => {// try to optimise later
     command = command.toLowerCase()
 
-    //require input on advanced shape(poly/path) via non-submit button
+    //require input on shape path via non-submit buttons
+    // intentional: excludes checkboxes (due to command value being upperCase)
     const inputElements = Array.from(document.querySelectorAll(`form input`)).filter(inputElement => 
       inputElement.id.split(/\s+/).includes(command)
     )
 
     let validity = [];
     
+    //console.log("inputElements", inputElements)
+
     inputElements && (() => {
       inputElements.forEach((element, index) => {
         element.setAttribute('required', 'required')
@@ -182,8 +185,8 @@ const ShapeInputs = ({ shape }) => {
     if(!validity.includes(false)){ //all inputs are valid
       console.log("attributes from shapeinputs", attributes)
       const {d = '', points = '', poly = {}, ...rest} = attributes //rest is path commands
-      const dPrefix = (d.trim().length === 0 && !d.trim().startsWith('M', 0)) ? 'M 0 0 ': ''
-      const dPart = command.toUpperCase() + " " + Object.values(rest[command] || {}).join(', ')
+      const dPrefix = (d.trim().length === 0 && !d.trim().startsWith('M', 0)) ? 'M 0 0': ''
+      const dPart = " " + command.toUpperCase() + " " + Object.values(rest[command] || {}).join(', ')
                      
       setAttributes(
         {
@@ -192,6 +195,24 @@ const ShapeInputs = ({ shape }) => {
         }
       )
     }
+  }
+
+  const handleCheckedChange = (event, flag, command) => {
+    //event.preventDefault()
+    command = command.toLowerCase()
+    console.log("target checked", event.target.checked)
+    const {d = '', points = '', ...rest} = attributes //rest would be basic shape info such as poly, path, RECT, CIRCLE etc
+    
+    setAttributes(
+      {
+        "d": d,
+        "points": points,
+        [command]: {
+          ...rest[command],
+          [flag]: event.target.checked? 1 : 0
+        }
+      }
+    )
   }
 
   if (!basicShapeConfig[shape] && !advancedShapeConfig[shape]) {
@@ -249,7 +270,9 @@ const ShapeInputs = ({ shape }) => {
                                 <label key={flag + "-" + index}>
                                   {label} 
                                   <input type='checkbox' 
-                                         value={flag} 
+                                         id={flag + ' ' + command} //intentional: leaving command here uppercase to bypass forced required within addCoordinateDatab
+                                         onChange={event => handleCheckedChange(event, flag, command)}
+                                         checked={attributes[command]?.[flag]}
                                   /> 
                                 </label>
                               )}
