@@ -10,19 +10,7 @@ const defaultsvg = React.createElement(
 const defaultAttributes = {
   "d":'',
   "points":'',
-  "poly": {},
-  "path": {
-    "m":{},
-    "l":{},
-    "h":{},
-    "v":{},
-    "c":{},
-    "s":{},
-    "q":{},
-    "t":{},
-    "a":{},
-    "z":{}
-  }
+  "poly": {}
 }
 const SVGContextProvider = (props) => {
   const [shapeName, setShapeName] = useState("")

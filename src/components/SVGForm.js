@@ -8,19 +8,6 @@ const defaultAttributes = {
   "d":'',
   "points":'',
   "poly": {},
-  "path": {
-    "m":{},
-    "l":{},
-    "h":{},
-    "v":{},
-    "c":{},
-    "s":{},
-    "q":{},
-    "t":{},
-    "a":{},
-    "z":{}
-  },
-  "RECT": {}//...
 }
 
 const SVGForm = () => {
