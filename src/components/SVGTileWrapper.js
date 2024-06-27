@@ -1,10 +1,9 @@
 import React, { useContext } from 'react'
 import SVGForm from './SVGForm'
 import SVGTile from './SVGTile'
-import {v4 as uuidv4} from 'uuid'
 import { Context } from "./SVGContext"
 
-uuidv4()
+
 
 const SVGTileWrapper = () => {
   const {
