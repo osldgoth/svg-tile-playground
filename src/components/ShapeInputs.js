@@ -182,16 +182,34 @@ const ShapeInputs = ({ shape }) => {
       })
     })();
 
-    if(!validity.includes(false)){ //all inputs are valid
+    if(!validity.includes(false)){ //all inputs are valid - proceed
       console.log("attributes from shapeinputs", attributes)
-      const {d = '', points = '', poly = {}, ...rest} = attributes //rest is path commands
-      const dPrefix = (d.trim().length === 0 && !d.trim().startsWith('M', 0)) ? 'M 0 0': ''
-      const dPart = " " + command.toUpperCase() + " " + Object.values(rest[command] || {}).join(', ')
-                     
+      const {d = '', points = '', poly: {x: polyX, y: polyY} = {}, ...rest} = attributes //rest is path commands //destructure, really?
+      let dPrefix = ''
+      let dPart = ''
+      let polyPart = ''
+
+      if(shape === "PATH") {
+        const {x1 = '', y1 = '', x2 = '', y2 = '', rx = '', ry = '', 'x-axis-rotation': xAxisRotation = '', "large-arc-flag": largeArcFlag = '', "sweep-flag": sweepFlag = '', x = '', y = ''} = attributes[command] //x-axis-rotation
+        if (command === 'a') {
+          //ensure flags are either 0 or 1
+          
+        }
+        if(command !== 'm' && attributes.d.trim().length === 0 && !attributes.d.trim().startsWith('M', 0)){
+          dPrefix = 'M 0 0'
+        }
+        dPart = ` ${command.toUpperCase()} ${x1} ${y1} ${x2} ${y2} ${rx} ${ry} ${xAxisRotation} ${largeArcFlag} ${sweepFlag} ${x} ${y}`
+      }
+      if(shape === "POLYLINE" ||
+         shape === "POLYGONE"
+      ) {
+        polyPart = `${attributes.poly.x}, ${attributes.poly.y} ` //preserve order x,y
+      }
+      
       setAttributes(
         {
-          "d": dPrefix + d + dPart,
-          "points": points.trim() + " " + Object.values(poly).join(', '),
+          "d": dPrefix + attributes.d + dPart,
+          "points": polyPart,
         }
       )
     }
@@ -200,13 +218,13 @@ const ShapeInputs = ({ shape }) => {
   const handleCheckedChange = (event, flag, command) => {
     //event.preventDefault()
     command = command.toLowerCase()
-    console.log("target checked", event.target.checked)
-    const {d = '', points = '', ...rest} = attributes //rest would be basic shape info such as poly, path, RECT, CIRCLE etc
+    const {d = '', points = '', ...rest} = attributes
     
     setAttributes(
       {
         "d": d,
         "points": points,
+        ...rest,
         [command]: {
           ...rest[command],
           [flag]: event.target.checked? 1 : 0
@@ -270,8 +288,8 @@ const ShapeInputs = ({ shape }) => {
                                 <label key={flag + "-" + index}>
                                   {label} 
                                   <input type='checkbox' 
-                                         id={flag + ' ' + command} //intentional: leaving command here uppercase to bypass forced required within addCoordinateDatab
-                                         onChange={event => handleCheckedChange(event, flag, command)}
+                                         id={flag + ' ' + command} //intentional: leaving command here uppercase to bypass forced required within addCoordinateData
+                                         onChange={event => handleCheckedChange(event, flag, command)} // needs to still be 0 even if not checked -> use value?
                                          checked={attributes[command]?.[flag]}
                                   /> 
                                 </label>
