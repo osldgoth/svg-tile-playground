@@ -9,6 +9,7 @@ const LabelInput = ({parameter, label, isrequired, command}) => {
   command = command.toLowerCase()
 
   const inputID = parameter + ' ' + command
+
   const handleAttributeChange = (event, parameter, command) => {
     event.preventDefault()
     const {d = '', points = '', ...rest} = attributes //rest would be basic shape info such as poly, path, RECT, CIRCLE etc
@@ -16,10 +17,12 @@ const LabelInput = ({parameter, label, isrequired, command}) => {
       {
         "d": d,
         "points": points,
+        ...rest,
         [command]: {
           ...rest[command],
           [parameter]: event.target.value
         }
+        
       }
     )
   }

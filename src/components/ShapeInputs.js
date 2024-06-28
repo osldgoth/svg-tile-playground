@@ -184,13 +184,13 @@ const ShapeInputs = ({ shape }) => {
 
     if(!validity.includes(false)){ //all inputs are valid - proceed
       console.log("attributes from shapeinputs", attributes)
-      const {d = '', points = '', poly: {x: polyX, y: polyY} = {}, ...rest} = attributes //rest is path commands //destructure, really?
       let dPrefix = ''
       let dPart = ''
       let polyPart = ''
+      let savedAttributes = {}
 
       if(shape === "PATH") {
-        const {x1 = '', y1 = '', x2 = '', y2 = '', rx = '', ry = '', 'x-axis-rotation': xAxisRotation = '', "large-arc-flag": largeArcFlag = '', "sweep-flag": sweepFlag = '', x = '', y = ''} = attributes[command] //x-axis-rotation
+        const {x1 = '', y1 = '', x2 = '', y2 = '', rx = '', ry = '', 'x-axis-rotation': xAxisRotation = '', "large-arc-flag": largeArcFlag = '', "sweep-flag": sweepFlag = '', x = '', y = ''} = attributes[command] 
         if (command === 'a') {
           //ensure flags are either 0 or 1
           
@@ -198,16 +198,17 @@ const ShapeInputs = ({ shape }) => {
         if(command !== 'm' && attributes.d.trim().length === 0 && !attributes.d.trim().startsWith('M', 0)){
           dPrefix = 'M 0 0'
         }
-        dPart = ` ${command.toUpperCase()} ${x1} ${y1} ${x2} ${y2} ${rx} ${ry} ${xAxisRotation} ${largeArcFlag} ${sweepFlag} ${x} ${y}`
+        dPart = ` ${command.toUpperCase()} ${x1} ${y1} ${x2} ${y2} ${rx} ${ry} ${xAxisRotation} ${largeArcFlag} ${sweepFlag} ${x} ${y}`.replace(/\s+/g, ' ').trimEnd()
+       const { [command]: extracted, ...rest } = attributes //intentionalally not using extracted
+       savedAttributes = rest
       }
-      if(shape === "POLYLINE" ||
-         shape === "POLYGONE"
-      ) {
+      if(shape === "POLYLINE" || shape === "POLYGONE" ) {
         polyPart = `${attributes.poly.x}, ${attributes.poly.y} ` //preserve order x,y
       }
       
       setAttributes(
         {
+          ...savedAttributes,
           "d": dPrefix + attributes.d + dPart,
           "points": polyPart,
         }
