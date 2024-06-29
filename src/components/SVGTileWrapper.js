@@ -8,11 +8,11 @@ import { Context } from "./SVGContext"
 const SVGTileWrapper = () => {
   const {
     shapeName, setShapeName, 
-    currentSVG, setCurrentSVG, 
+    //currentSVG, setCurrentSVG, 
     allSVGs, setAllSVGs, 
     attributes, setAttributes, 
-    Command, setCommand,
-    coordinateData, setcoordinateData
+    //Command, setCommand,
+    //coordinateData, setcoordinateData
   } = useContext(Context) //currentSVG, setCurrentSVG, shapeName, attributes,
   
 

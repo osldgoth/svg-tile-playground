@@ -18,7 +18,7 @@ const SVGContextProvider = (props) => {
   const [attributes, setAttributes] = useState(defaultAttributes)
   //const [currentSVG, setCurrentSVG] = useState(defaultsvg) //not used?
   //const [Command, setCommand] = useState("")
-  const [coordinateData, setcoordinateData] = useState('')
+  //const [coordinateData, setcoordinateData] = useState('')
 
   return (
     <Context.Provider value={
@@ -28,7 +28,7 @@ const SVGContextProvider = (props) => {
         allSVGs, setAllSVGs, 
         attributes, setAttributes, 
         //Command, setCommand,
-        coordinateData, setcoordinateData
+        //coordinateData, setcoordinateData
       }
     }>
       {props.children}

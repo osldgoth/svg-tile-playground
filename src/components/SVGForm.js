@@ -12,29 +12,30 @@ const defaultAttributes = {
 
 const SVGForm = () => {
   const {shapeName, setShapeName, 
-         currentSVG, setCurrentSVG, 
+         //currentSVG, setCurrentSVG, 
          allSVGs, setAllSVGs, 
          attributes, setAttributes, 
-         Command, setCommand,
-         coordinateData, setcoordinateData} = useContext(Context) //currentSVG, setCurrentSVG, 
+         //Command, setCommand,
+         //coordinateData, setcoordinateData
+         } = useContext(Context) //currentSVG, setCurrentSVG, 
   const shapes = ["Rectangle", "Circle", 'Ellipse', 'Line', 'Polyline', 'Polygon', 'Path']
 
   const handleFormSubmission = (event) => {
     event.preventDefault()
-    setAllSVGs([{shapeName, attributes, coordinateData}, ...allSVGs]) //add new svg to beginning of array
+    setAllSVGs([{shapeName, attributes}, ...allSVGs]) //add new svg to beginning of array //, coordinateData
       //reset state to defaults
     setShapeName("")
     setAttributes(defaultAttributes)
-    setcoordinateData('')
-    setCommand('')
+    //setcoordinateData('')
+    //setCommand('')
   }
 
   const handleShapeChange = (event) => {
     setShapeName(event.target.value)
       //reset state to defaults
     setAttributes(defaultAttributes)
-    setcoordinateData('')
-    setCommand('')
+    //setcoordinateData('')
+    //setCommand('')
   }
   
   return (
@@ -50,7 +51,7 @@ const SVGForm = () => {
       </select>
 
       <ShapeInputs shape={shapeName.toUpperCase()}/>
-      <SVGTile index={-1} shapeName={shapeName} attributes={attributes} coordinateData={coordinateData}/> {/* handleDelete={handleDelete} handleEdit={handleEdit} */}
+      <SVGTile index={-1} shapeName={shapeName} attributes={attributes} /> {/* handleDelete={handleDelete} handleEdit={handleEdit} coordinateData={coordinateData}*/}
       {shapeName &&
         <button type='submit' className='submit-svg-form my-3'>Create SVG</button>
       }
