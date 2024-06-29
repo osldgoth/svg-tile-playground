@@ -1,12 +1,12 @@
 import React, {useState, createContext} from 'react'
-import {v4 as uuidv4} from 'uuid'
+//import {v4 as uuidv4} from 'uuid'
 
 const Context = createContext()
 
-const defaultsvg = React.createElement(
-  'svg', 
-  {id: uuidv4(), key: uuidv4(), width: 378, height: 378, style:{border: "solid pink 1px"}}
-)
+// const defaultsvg = React.createElement(
+//   'svg', 
+//   {id: uuidv4(), width: 378, height: 378, style:{border: "solid pink 1px"}}//, key: uuidv4()
+// )
 const defaultAttributes = {
   "d":[],
   "points":[],
@@ -16,18 +16,18 @@ const SVGContextProvider = (props) => {
   const [shapeName, setShapeName] = useState("")
   const [allSVGs, setAllSVGs] = useState([])
   const [attributes, setAttributes] = useState(defaultAttributes)
-  const [currentSVG, setCurrentSVG] = useState(defaultsvg) //not used?
-  const [Command, setCommand] = useState("")
+  //const [currentSVG, setCurrentSVG] = useState(defaultsvg) //not used?
+  //const [Command, setCommand] = useState("")
   const [coordinateData, setcoordinateData] = useState('')
 
   return (
     <Context.Provider value={
       {
         shapeName, setShapeName, 
-        currentSVG, setCurrentSVG, 
+        //currentSVG, setCurrentSVG, 
         allSVGs, setAllSVGs, 
         attributes, setAttributes, 
-        Command, setCommand,
+        //Command, setCommand,
         coordinateData, setcoordinateData
       }
     }>
