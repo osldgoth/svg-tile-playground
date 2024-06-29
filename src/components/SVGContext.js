@@ -8,8 +8,8 @@ const defaultsvg = React.createElement(
   {id: uuidv4(), key: uuidv4(), width: 378, height: 378, style:{border: "solid pink 1px"}}
 )
 const defaultAttributes = {
-  "d":'',
-  "points":'',
+  "d":[],
+  "points":[],
   "poly": {}
 }
 const SVGContextProvider = (props) => {
