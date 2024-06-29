@@ -158,14 +158,12 @@ const ShapeInputs = ({ shape }) => {
     command = command.toLowerCase()
 
     //require input on shape path via non-submit buttons
-    // intentional: excludes checkboxes (due to command value being upperCase)
+    // intentional: excludes checkboxes
     const inputElements = Array.from(document.querySelectorAll(`form input`)).filter(inputElement => 
       inputElement.id.split(/\s+/).includes(command)
     )
 
     let validity = [];
-    
-    //console.log("inputElements", inputElements)
 
     inputElements && (() => {
       inputElements.forEach((element, index) => {
@@ -184,24 +182,28 @@ const ShapeInputs = ({ shape }) => {
 
     if(!validity.includes(false)){ //all inputs are valid - proceed
       console.log("attributes from shapeinputs", attributes)
+      const { d = [] } = attributes
       let dPrefix = ''
       let dPart = ''
       let polyPart = ''
       let savedAttributes = {}
 
       if(shape === "PATH") {
+        
         const {x1 = '', y1 = '', x2 = '', y2 = '', rx = '', ry = '', 'x-axis-rotation': xAxisRotation = '', "large-arc-flag": largeArcFlag = '', "sweep-flag": sweepFlag = '', x = '', y = ''} = attributes[command] 
         if (command === 'a') {
           //ensure flags are either 0 or 1
           
         }
-        if(command !== 'm' && attributes.d.trim().length === 0 && !attributes.d.trim().startsWith('M', 0)){
+
+        if(command !== 'm' && d.length === 0){//!d[0] && d[0]?.trim().length === 0 && !d[0]?.trim().startsWith('M', 0)
           dPrefix = 'M 0 0'
         }
         dPart = ` ${command.toUpperCase()} ${x1} ${y1} ${x2} ${y2} ${rx} ${ry} ${xAxisRotation} ${largeArcFlag} ${sweepFlag} ${x} ${y}`.replace(/\s+/g, ' ').trimEnd()
-       const { [command]: extracted, ...rest } = attributes //intentionalally not using extracted
+       const { [command]: extracted, ...rest } = attributes //intentional: not using extracted
        savedAttributes = rest
       }
+      
       if(shape === "POLYLINE" || shape === "POLYGONE" ) {
         polyPart = `${attributes.poly.x}, ${attributes.poly.y} ` //preserve order x,y
       }
@@ -209,7 +211,7 @@ const ShapeInputs = ({ shape }) => {
       setAttributes(
         {
           ...savedAttributes,
-          "d": dPrefix + attributes.d + dPart,
+          "d": [dPrefix, ...d, dPart],
           "points": polyPart,
         }
       )
@@ -219,7 +221,7 @@ const ShapeInputs = ({ shape }) => {
   const handleCheckedChange = (event, flag, command) => {
     //event.preventDefault()
     command = command.toLowerCase()
-    const {d = '', points = '', ...rest} = attributes
+    const {d = [], points = [], ...rest} = attributes
     
     setAttributes(
       {
@@ -233,6 +235,9 @@ const ShapeInputs = ({ shape }) => {
       }
     )
   }
+
+  const handlePathDataEdit = () => {}
+const handlePathDataDelete = () => {}
 
   if (!basicShapeConfig[shape] && !advancedShapeConfig[shape]) {
     return null
@@ -257,13 +262,17 @@ const ShapeInputs = ({ shape }) => {
                 <div>
                   {/* { attribute, label, commands: pathCommands, parameters: polyParameters }, index*/}
                   <div className="container" id={attribute + index} key={label + "-" + index}>
-                    <label name={label} value={attribute}>
-                      <p id='shapeData'>
-                        {label}
-                        <br />
-                        {attribute}= '{attributes.d}'
-                      </p>
-                    </label>
+                    <div>
+                      <label name={label} value={attribute}>
+                        <p id='shapeData'>
+                          {label}
+                          <br />
+                          {attribute}= '{attributes.d}'
+                        </p>
+                      </label>
+                      <i className="bi bi-pencil-square" data-index={index} onClick={handlePathDataEdit}></i>
+                      <i className="bi bi-x-octagon" data-index={index} onClick={handlePathDataDelete}></i>
+                    </div>
                     {pathCommands.map(({command, name, parameters: pathParameters, flags}, index) =>
                       {
                         
@@ -312,8 +321,17 @@ const ShapeInputs = ({ shape }) => {
             {polyParameters && //Polyline/Polygon
               (
                 <div>
-                  <label htmlFor="shapeData">{label}</label>
-            <p id='shapeData'>{attribute}= '{attributes.points}'</p>
+                  <div>
+                    <label name='' value='' >
+                      <p id='shapeData'>
+                        {label}
+                        <br />
+                        {attribute}= '{attributes.points}'
+                      </p>
+                    </label>
+                    <i className="bi bi-pencil-square" data-index={index} onClick={handlePathDataEdit}></i>
+                    <i className="bi bi-x-octagon" data-index={index} onClick={handlePathDataDelete}></i>
+                  </div>
                   <fieldset name='parametersForCommand' id=''>
                     {polyParameters.map(({ parameter, label }, index) => 
                       (
