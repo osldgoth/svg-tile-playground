@@ -182,38 +182,33 @@ const ShapeInputs = ({ shape }) => {
 
     if(!validity.includes(false)){ //all inputs are valid - proceed
       console.log("attributes from shapeinputs", attributes)
-      const { d = [] } = attributes
       let dPrefix = ''
       let dPart = ''
       let polyPart = ''
-      let savedAttributes = {}
 
       if(shape === "PATH") {
-        
         const {x1 = '', y1 = '', x2 = '', y2 = '', rx = '', ry = '', 'x-axis-rotation': xAxisRotation = '', "large-arc-flag": largeArcFlag = '', "sweep-flag": sweepFlag = '', x = '', y = ''} = attributes[command] 
         if (command === 'a') {
           //ensure flags are either 0 or 1
           
         }
 
-        if(command !== 'm' && d.length === 0){//!d[0] && d[0]?.trim().length === 0 && !d[0]?.trim().startsWith('M', 0)
+        if(command !== 'm' && attributes.d.length === 0){
           dPrefix = 'M 0 0'
         }
         dPart = ` ${command.toUpperCase()} ${x1} ${y1} ${x2} ${y2} ${rx} ${ry} ${xAxisRotation} ${largeArcFlag} ${sweepFlag} ${x} ${y}`.replace(/\s+/g, ' ').trimEnd()
-       const { [command]: extracted, ...rest } = attributes //intentional: not using extracted
-       savedAttributes = rest
       }
       
       if(shape === "POLYLINE" || shape === "POLYGONE" ) {
         polyPart = `${attributes.poly.x}, ${attributes.poly.y} ` //preserve order x,y
       }
       
-      setAttributes(
+      setAttributes(({[command]: extracted, d, ...rest}) => (
         {
-          ...savedAttributes,
-          "d": [dPrefix, ...d, dPart],
+          ...rest,
+          "d": dPrefix ? [dPrefix, ...d, dPart] : [...d, dPart],
           "points": polyPart,
-        }
+        })
       )
     }
   }
@@ -267,7 +262,11 @@ const handlePathDataDelete = () => {}
                         <p id='shapeData'>
                           {label}
                           <br />
-                          {attribute}= '{attributes.d}'
+                          {attribute}= '{attributes.d.map((data, index)=> 
+                            (
+                              <span key={index} id={index}>{data}</span>
+                            ))
+                          }'
                         </p>
                       </label>
                       <i className="bi bi-pencil-square" data-index={index} onClick={handlePathDataEdit}></i>
@@ -275,7 +274,6 @@ const handlePathDataDelete = () => {}
                     </div>
                     {pathCommands.map(({command, name, parameters: pathParameters, flags}, index) =>
                       {
-                        
                         return (
                           <div className="card" key={command + "-" + name + "-" + index}>
                             <div className="card-header">
@@ -298,7 +296,7 @@ const handlePathDataDelete = () => {}
                                 <label key={flag + "-" + index}>
                                   {label} 
                                   <input type='checkbox' 
-                                         id={flag + ' ' + command} //intentional: leaving command here uppercase to bypass forced required within addCoordinateData
+                                         id={flag + ' ' + command} //intentional: leaving command here uppercase to bypass forced require within addCoordinateData
                                          onChange={event => handleCheckedChange(event, flag, command)} // needs to still be 0 even if not checked -> use value?
                                          checked={attributes[command]?.[flag]}
                                   /> 

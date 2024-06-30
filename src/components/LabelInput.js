@@ -12,8 +12,7 @@ const LabelInput = ({parameter, label, isrequired, command}) => {
 
   const handleAttributeChange = (event, parameter, command) => {
     event.preventDefault()
-    const {d = [], points = [], ...rest} = attributes //rest would be basic shape info such as poly, path, RECT, CIRCLE etc
-    setAttributes(
+    setAttributes(({d = [], points = [], ...rest}) => (
       {
         "d": d,
         "points": points,
@@ -23,7 +22,7 @@ const LabelInput = ({parameter, label, isrequired, command}) => {
           [parameter]: event.target.value
         }
         
-      }
+      })
     )
   }
 
