@@ -154,17 +154,14 @@ const advancedShapeConfig = {
 const ShapeInputs = ({ shape }) => {
   const {attributes, setAttributes} = useContext(Context)
 
-  const addCoordinateData = (command) => {// try to optimise later
+  const validateElements = (command) => {
     command = command.toLowerCase()
-
+    const validity = []
     //require input on shape path via non-submit buttons
     // intentional: excludes checkboxes
     const inputElements = Array.from(document.querySelectorAll(`form input`)).filter(inputElement => 
       inputElement.id.split(/\s+/).includes(command)
     )
-
-    let validity = [];
-
     inputElements && (() => {
       inputElements.forEach((element, index) => {
         element.setAttribute('required', 'required')
@@ -180,34 +177,51 @@ const ShapeInputs = ({ shape }) => {
       })
     })();
 
+    return validity
+  }
+
+  const addPolyCoordinateData = (command) => {
+    command = command.toLowerCase()
+    let validity = validateElements(command);
+    let polyPart = ''
+    
     if(!validity.includes(false)){ //all inputs are valid - proceed
-      console.log("attributes from shapeinputs", attributes)
+      polyPart = `${attributes.poly.x}, ${attributes.poly.y} ` //preserve order x,y
+        
+      setAttributes(({ points, poly, ...rest }) => (
+        {
+          ...rest,
+          "points": [...points, polyPart]
+        })
+      )
+    }
+  }
+
+  const addPathCoordinateData = (command) => {// try to optimise later
+    command = command.toLowerCase()
+    let validity = validateElements(command);
+
+    if(!validity.includes(false)){ //all inputs are valid - proceed
       let dPrefix = ''
       let dPart = ''
-      let polyPart = ''
 
-      if(shape === "PATH") {
-        const {x1 = '', y1 = '', x2 = '', y2 = '', rx = '', ry = '', 'x-axis-rotation': xAxisRotation = '', "large-arc-flag": largeArcFlag = '', "sweep-flag": sweepFlag = '', x = '', y = ''} = attributes[command] 
-        if (command === 'a') {
-          //ensure flags are either 0 or 1
-          
-        }
+      const {x1 = '', y1 = '', x2 = '', y2 = '', rx = '', ry = '', 'x-axis-rotation': xAxisRotation = '', "large-arc-flag": largeArcFlag = '', "sweep-flag": sweepFlag = '', x = '', y = ''} = attributes[command] 
+      
+      if (command === 'a') {
+        //ensure flags are either 0 or 1
+        
+      }
 
-        if(command !== 'm' && attributes.d.length === 0){
-          dPrefix = 'M 0 0'
-        }
-        dPart = ` ${command.toUpperCase()} ${x1} ${y1} ${x2} ${y2} ${rx} ${ry} ${xAxisRotation} ${largeArcFlag} ${sweepFlag} ${x} ${y}`.replace(/\s+/g, ' ').trimEnd()
+      if(command !== 'm' && attributes.d.length === 0){
+        dPrefix = 'M 0 0'
       }
       
-      if(shape === "POLYLINE" || shape === "POLYGONE" ) {
-        polyPart = `${attributes.poly.x}, ${attributes.poly.y} ` //preserve order x,y
-      }
+      dPart = ` ${command.toUpperCase()} ${x1} ${y1} ${x2} ${y2} ${rx} ${ry} ${xAxisRotation} ${largeArcFlag} ${sweepFlag} ${x} ${y}`.replace(/\s+/g, ' ').trimEnd()
       
-      setAttributes(({[command]: extracted, d, ...rest}) => (
+      setAttributes(({ [command]: extracted, d, ...rest }) => (
         {
           ...rest,
           "d": dPrefix ? [dPrefix, ...d, dPart] : [...d, dPart],
-          "points": polyPart,
         })
       )
     }
@@ -306,7 +320,7 @@ const handlePathDataDelete = () => {}
                             }
                             </div>
                             <div className="card-footer">
-                              <button type='button' id='commandsInput' onClick={() => addCoordinateData(command) }>Add {command}</button>
+                              <button type='button' id='commandsInput' onClick={() => addPathCoordinateData(command) }>Add {command}</button>
                             </div>
                           </div>
                         )
@@ -324,7 +338,11 @@ const handlePathDataDelete = () => {}
                       <p id='shapeData'>
                         {label}
                         <br />
-                        {attribute}= '{attributes.points}'
+                        {attribute}= '{attributes.points.map((data, index)=> 
+                          (
+                            <span key={index} id={index}>{data}</span>
+                          ))
+                        }'
                       </p>
                     </label>
                     <i className="bi bi-pencil-square" data-index={index} onClick={handlePathDataEdit}></i>
@@ -342,7 +360,7 @@ const handlePathDataDelete = () => {}
                         />
                       )
                     )}
-                    <button type='button' id='parametersInput' onClick={() => addCoordinateData("poly")}>Add Coordinate {Object.values(attributes["poly"] || {}).join(", ")}</button>
+                    <button type='button' id='parametersInput' onClick={() => addPolyCoordinateData("poly")}>Add Coordinate {Object.values(attributes["poly"] || {}).join(", ")}</button>
                   </fieldset>
                 </div>
               )
