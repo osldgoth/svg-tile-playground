@@ -3,7 +3,7 @@ import React from 'react'
 const SVGTile = ({index, shapeName, attributes, handleDelete, handleEdit}) => {
   shapeName = shapeName.toLowerCase()
   let shape = null;
-  const {d: path, points} = attributes
+  const {d: path = [], points = []} = attributes
   const d = path.join(' ')
   if (typeof shapeName === 'string' && shapeName.trim() !== '') {
     shape = React.createElement(shapeName, 
