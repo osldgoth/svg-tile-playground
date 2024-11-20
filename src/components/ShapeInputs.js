@@ -246,7 +246,7 @@ const ShapeInputs = ({ shape }) => {
     const shapeDataSpans = Array.from(document.querySelectorAll("#shapeData > span"))
     console.log("spans", shapeDataSpans)
     //select id# 0-n -- show arrow buttons
-    showEditArrows();
+    showEditArrows(); //only if spans > 1? future optimization perhaps
     // use color
     const lastElement = shapeDataSpans[shapeDataSpans.length - 1] //no spans if d or points is empty
     lastElement && lastElement.classList.toggle("bg-primary-subtle")
@@ -323,7 +323,7 @@ const ShapeInputs = ({ shape }) => {
                               <span key={index} id={index}>{data}</span>
                             ))
                           }'
-                          <i className="d-none bi bi-box-arrow-in-right" onClick={handleEditCoordRight}>loc</i>
+                          <i className="d-none bi bi-box-arrow-in-right" onClick={handleEditCoordRight}></i>
                         </p>
                       </label>
                       {
@@ -396,11 +396,14 @@ const ShapeInputs = ({ shape }) => {
                       <p id='shapeData'>
                         {label}
                         <br />
-                        {attribute}= '{attributes.points?.map((data, index)=> 
+                        {attribute}= 
+                        <i className="d-none bi bi-box-arrow-in-left" onClick={handleEditCoordLeft}></i>
+                        '{attributes.points?.map((data, index)=> 
                           (
                             <span key={index} id={index}>{data}</span>
                           ))
                         }'
+                        <i className="d-none bi bi-box-arrow-in-right" onClick={handleEditCoordRight}></i>
                       </p>
                     </label>
                     {
