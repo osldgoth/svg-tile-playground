@@ -7,15 +7,12 @@ const Context = createContext()
 //   'svg', 
 //   {id: uuidv4(), width: 378, height: 378, style:{border: "solid pink 1px"}}//, key: uuidv4()
 // )
-const defaultAttributes = {
-  "d":[],
-  "points":[],
-  "poly": {}
-}
+
+
 const SVGContextProvider = (props) => {
   const [shapeName, setShapeName] = useState("")
   const [allSVGs, setAllSVGs] = useState([])
-  const [attributes, setAttributes] = useState(defaultAttributes)
+  const [attributes, setAttributes] = useState({})
   //const [currentSVG, setCurrentSVG] = useState(defaultsvg) //not used?
   //const [Command, setCommand] = useState("")
   //const [coordinateData, setcoordinateData] = useState('')

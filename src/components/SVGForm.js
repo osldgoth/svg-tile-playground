@@ -4,38 +4,29 @@ import { Context } from "./SVGContext"
 import {v4 as uuidv4} from 'uuid'
 import SVGTile from './SVGTile'
 
-const defaultAttributes = {
-  "d": [],
-  "points": [],
-  "poly": {},
-}
-
 const SVGForm = () => {
   const {shapeName, setShapeName, 
-         //currentSVG, setCurrentSVG, 
          allSVGs, setAllSVGs, 
-         attributes, setAttributes, 
-         //Command, setCommand,
-         //coordinateData, setcoordinateData
-         } = useContext(Context) //currentSVG, setCurrentSVG, 
+         attributes, setAttributes,
+         } = useContext(Context)  
   const shapes = ["Rectangle", "Circle", 'Ellipse', 'Line', 'Polyline', 'Polygon', 'Path']
 
   const handleFormSubmission = (event) => {
     event.preventDefault()
-    setAllSVGs([{shapeName, attributes}, ...allSVGs]) //add new svg to beginning of array //, coordinateData
+    setAllSVGs([{shapeName, attributes}, ...allSVGs]) //add new svg to beginning of array
       //reset state to defaults
     setShapeName("")
-    setAttributes(defaultAttributes)
-    //setcoordinateData('')
-    //setCommand('')
+    setAttributes({})
   }
 
   const handleShapeChange = (event) => {
     setShapeName(event.target.value)
       //reset state to defaults
-    setAttributes(defaultAttributes)
-    //setcoordinateData('')
-    //setCommand('')
+    setAttributes({//temp fix?
+      a: {
+        "large-arc-flag": 0,
+        "sweep-flag": 0
+      }})
   }
   
   return (
