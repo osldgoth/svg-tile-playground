@@ -182,11 +182,9 @@ const ShapeInputs = ({ shape }) => {
 
   const addPolyCoordinateData = (command) => {
     command = command.toLowerCase()
-    let validity = validateElements(command);
-    let polyPart = ''
     
-    if(!validity.includes(false)){ //all inputs are valid - proceed
-      polyPart = `${attributes.poly.x}, ${attributes.poly.y} ` //preserve order x,y
+    if(!validateElements(command).includes(false)){ //all inputs are valid - proceed
+      const polyPart = `${attributes.poly.x}, ${attributes.poly.y} ` //preserve order x,y
         
       setAttributes(({ points, poly, ...rest }) => (
         {
@@ -204,24 +202,21 @@ const ShapeInputs = ({ shape }) => {
     if(!validity.includes(false)){ //all inputs are valid - proceed
       let dPrefix = ''
       let dPart = ''
+      let flagDefault = command === 'a'? '0' : ''
 
-      const {x1 = '', y1 = '', x2 = '', y2 = '', rx = '', ry = '', 'x-axis-rotation': xAxisRotation = '', "large-arc-flag": largeArcFlag = '', "sweep-flag": sweepFlag = '', x = '', y = ''} = attributes[command] 
-      
-      if (command === 'a') {
-        //ensure flags are either 0 or 1
-        
-      }
+      const {x1 = '', y1 = '', x2 = '', y2 = '', rx = '', ry = '', 'x-axis-rotation': xAxisRotation = '',
+            "large-arc-flag": largeArcFlag = flagDefault, "sweep-flag": sweepFlag = flagDefault, x = '', y = ''} = attributes[command] 
 
       if(command !== 'm' && attributes.d.length === 0){
         dPrefix = 'M 0 0'
       }
-      
+
       dPart = ` ${command.toUpperCase()} ${x1} ${y1} ${x2} ${y2} ${rx} ${ry} ${xAxisRotation} ${largeArcFlag} ${sweepFlag} ${x} ${y}`.replace(/\s+/g, ' ').trimEnd()
       
       setAttributes(({ [command]: extracted, d, ...rest }) => (
         {
           ...rest,
-          "d": dPrefix ? [dPrefix, ...d, dPart] : [...d, dPart],
+          "d": dPrefix ? [dPrefix, ...d, dPart] : [...d, dPart]
         })
       )
     }
@@ -245,22 +240,67 @@ const ShapeInputs = ({ shape }) => {
     )
   }
 
-  const handlePathDataEdit = () => {}
-const handlePathDataDelete = () => {}
+  const handleAdvShapeDataEdit = () => { //split path vs poly?
+    //need delete or remove single command
+    //get spans
+    const shapeDataSpans = Array.from(document.querySelectorAll("#shapeData > span"))
+    console.log("spans", shapeDataSpans)
+    //select id# 0-n -- show arrow buttons
+    showEditArrows();
+    // use color
+    const lastElement = shapeDataSpans[shapeDataSpans.length - 1] //no spans if d or points is empty
+    lastElement && lastElement.classList.toggle("bg-primary-subtle")
+    console.log("lastElement.innerText", lastElement?.innerText || 'nil')
+    //load span into inputs via setAttribs 
+    
+    //remove from data
+    //add new data into spot or at the end ?
+  }
+
+  const showEditArrows = ()=> {
+    const arrows = document.querySelectorAll("#shapeData > i");
+    arrows.forEach(iElement => iElement.classList.replace("d-none", "d-inline"));
+  }
+  
+  const hideEditArrows = () => {
+    const arrows = document.querySelectorAll("#shapeData > i");
+    arrows.forEach(iElement => iElement.classList.replace("d-inline", "d-none"));
+  }
+
+  const handleAdvShapeDataDelete = () => {
+    hideEditArrows();
+    setAttributes({
+      // "d":[],
+      // "points":[],
+      // "poly": {}
+     //temp fix?
+      a: {
+        "large-arc-flag": 0,
+        "sweep-flag": 0
+      }
+    })
+  }
+
+  const handleEditCoordRight = () => {
+    console.log("right")
+  }
+  const handleEditCoordLeft = () => {
+    console.log("Left")
+  }
 
   if (!basicShapeConfig[shape] && !advancedShapeConfig[shape]) {
     return null
   };
 
-  return (
+  return (// DO: turn all below into components at the very least defined above.
     <div>
       {basicShapeConfig[shape]?.map(({ parameter, label }, index) => 
         <LabelInput
           key={ parameter + "-" + index }
           parameter={ parameter }
           label={ label }
-          isrequired={'required'}
-          command={shape}
+          isrequired={ 'required' }
+          command={ shape }
         />
       )}
       {advancedShapeConfig[shape]?.map(({ attribute, label, commands: pathCommands, parameters: polyParameters }, index) => {
@@ -276,15 +316,33 @@ const handlePathDataDelete = () => {}
                         <p id='shapeData'>
                           {label}
                           <br />
-                          {attribute}= '{attributes.d.map((data, index)=> 
+                          {attribute}=
+                          <i className="d-none bi bi-box-arrow-in-left" onClick={handleEditCoordLeft}></i>
+                          '{attributes.d?.map((data, index)=> 
                             (
                               <span key={index} id={index}>{data}</span>
                             ))
                           }'
+                          <i className="d-none bi bi-box-arrow-in-right" onClick={handleEditCoordRight}></i>
                         </p>
                       </label>
-                      <i className="bi bi-pencil-square" data-index={index} onClick={handlePathDataEdit}></i>
-                      <i className="bi bi-x-octagon" data-index={index} onClick={handlePathDataDelete}></i>
+                      {
+                        attributes.d?.length > 0
+                        ? 
+                        <>
+                          {/* <div className='tooltip'> {/*https://www.w3schools.com/css/css_tooltip.asp */}
+                          {/*  <span className='tooltipText'>Edit</span> */}
+                            <i className="bi bi-pencil-square" data-index={index} onClick={handleAdvShapeDataEdit}></i>
+                          {/* </div> */}
+
+                          {/* <div className='tooltip'>*/}
+                          {/*  <span className='tooltipText'>Edit</span> */}
+                            <i className="bi bi-x-octagon" data-index={index} onClick={handleAdvShapeDataDelete}></i>
+                          {/* </div> */}
+                        </>
+                        : 
+                        <></>
+                      }
                     </div>
                     {pathCommands.map(({command, name, parameters: pathParameters, flags}, index) =>
                       {
@@ -310,7 +368,7 @@ const handlePathDataDelete = () => {}
                                 <label key={flag + "-" + index}>
                                   {label} 
                                   <input type='checkbox' 
-                                         id={flag + ' ' + command} //intentional: leaving command here uppercase to bypass forced require within addCoordinateData
+                                         id={flag + ' ' + command} //intentional: leaving command here uppercase to bypass forced require within addPathCoordinateData
                                          onChange={event => handleCheckedChange(event, flag, command)} // needs to still be 0 even if not checked -> use value?
                                          checked={attributes[command]?.[flag]}
                                   /> 
@@ -338,15 +396,24 @@ const handlePathDataDelete = () => {}
                       <p id='shapeData'>
                         {label}
                         <br />
-                        {attribute}= '{attributes.points.map((data, index)=> 
+                        {attribute}= '{attributes.points?.map((data, index)=> 
                           (
                             <span key={index} id={index}>{data}</span>
                           ))
                         }'
                       </p>
                     </label>
-                    <i className="bi bi-pencil-square" data-index={index} onClick={handlePathDataEdit}></i>
-                    <i className="bi bi-x-octagon" data-index={index} onClick={handlePathDataDelete}></i>
+
+                    {
+                      attributes.points?.length > 0 
+                      ?
+                      <div>
+                      <i className="bi bi-pencil-square" data-index={index} onClick={handleAdvShapeDataEdit}></i>
+                      <i className="bi bi-x-octagon" data-index={index} onClick={handleAdvShapeDataDelete}></i>
+                    </div>
+                    :
+                    <></>
+                    }
                   </div>
                   <fieldset name='parametersForCommand' id=''>
                     {polyParameters.map(({ parameter, label }, index) => 
@@ -374,3 +441,4 @@ const handlePathDataDelete = () => {}
 };
 
 export default ShapeInputs;
+
