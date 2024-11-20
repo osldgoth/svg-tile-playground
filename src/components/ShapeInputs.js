@@ -274,10 +274,10 @@ const ShapeInputs = ({ shape }) => {
       // "points":[],
       // "poly": {}
      //temp fix?
-      a: {
+     /*  a: {
         "large-arc-flag": 0,
         "sweep-flag": 0
-      }
+      } */
     })
   }
 
@@ -323,7 +323,7 @@ const ShapeInputs = ({ shape }) => {
                               <span key={index} id={index}>{data}</span>
                             ))
                           }'
-                          <i className="d-none bi bi-box-arrow-in-right" onClick={handleEditCoordRight}></i>
+                          <i className="d-none bi bi-box-arrow-in-right" onClick={handleEditCoordRight}>loc</i>
                         </p>
                       </label>
                       {
@@ -403,16 +403,15 @@ const ShapeInputs = ({ shape }) => {
                         }'
                       </p>
                     </label>
-
                     {
                       attributes.points?.length > 0 
                       ?
-                      <div>
-                      <i className="bi bi-pencil-square" data-index={index} onClick={handleAdvShapeDataEdit}></i>
-                      <i className="bi bi-x-octagon" data-index={index} onClick={handleAdvShapeDataDelete}></i>
-                    </div>
-                    :
-                    <></>
+                      <>
+                        <i className="bi bi-pencil-square" data-index={index} onClick={handleAdvShapeDataEdit}></i>
+                        <i className="bi bi-x-octagon" data-index={index} onClick={handleAdvShapeDataDelete}></i>
+                      </>
+                      :
+                      <></>
                     }
                   </div>
                   <fieldset name='parametersForCommand' id=''>
