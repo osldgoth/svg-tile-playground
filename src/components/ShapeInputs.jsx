@@ -181,13 +181,12 @@ const ShapeInputs = ({ shape }) => {
     return validity
   }
 
-  const addPolyCoordinateData = (command) => {
+  const addPolyCoordinateData  = (command) => {
     command = command.toLowerCase()
-    console.log('poly command:', command)
     if(!validateElements(command).includes(false)){ //all inputs are valid - proceed
       const polyPart = `${attributes[command].x}, ${attributes[command].y} ` //preserve order x,y
         
-      setAttributes(({ points, poly, ...rest }) => (
+      setAttributes(({ points, polygon, polyline, ...rest }) => (
         {
           ...rest,
           "points": [...points, polyPart]
