@@ -1,5 +1,6 @@
-import React, {useContext} from 'react'
+import {useContext} from 'react'
 import { Context } from "./SVGContext"
+import PropTypes from 'prop-types'
 
 const MIN = 0
 const MAX = 378
@@ -38,5 +39,13 @@ const LabelInput = ({parameter, label, isrequired, command, shapeName}) => {
     </div>
   )
 }
+
+LabelInput.propTypes = {
+  parameter: PropTypes.string,
+  label: PropTypes.string,
+  isrequired: PropTypes.string,
+  command: PropTypes.string,
+  shapeName: PropTypes.string
+};
 
 export default LabelInput

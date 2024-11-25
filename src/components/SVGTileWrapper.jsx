@@ -1,4 +1,4 @@
-import React, { useContext } from 'react'
+import { useContext } from 'react'
 import SVGForm from './SVGForm'
 import SVGTile from './SVGTile'
 import { Context } from "./SVGContext"
@@ -10,7 +10,7 @@ const SVGTileWrapper = () => {
     shapeName, setShapeName, 
     //currentSVG, setCurrentSVG, 
     allSVGs, setAllSVGs, 
-    attributes, setAttributes, 
+    attributes, setAttributes,
     //Command, setCommand,
     //coordinateData, setcoordinateData
   } = useContext(Context) //currentSVG, setCurrentSVG, shapeName, attributes,

@@ -1,6 +1,7 @@
-import React, { useContext } from 'react';
+import { useContext } from 'react';
 import  LabelInput from './LabelInput'
 import { Context } from './SVGContext';
+import PropTypes from 'prop-types';
 
 
 const basicShapeConfig = {
@@ -480,6 +481,10 @@ const ShapeInputs = ({ shape }) => {
       )}
     </div>
   );
+};
+
+ShapeInputs.propTypes = {
+  shape: PropTypes.string,
 };
 
 export default ShapeInputs;

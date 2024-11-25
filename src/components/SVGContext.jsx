@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types'
 import {useState, createContext} from 'react'
 //import {v4 as uuidv4} from 'uuid'
 
@@ -26,5 +27,9 @@ const SVGContextProvider = (props) => {
     </Context.Provider>
   )
 }
+
+SVGContextProvider.propTypes = {
+  children: PropTypes.element
+};
 
 export {SVGContextProvider, Context}

@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import React from 'react'
 
 const SVGTile = ({index, shapeName, attributes, handleDelete, handleEdit}) => {
@@ -43,5 +44,13 @@ const SVGTile = ({index, shapeName, attributes, handleDelete, handleEdit}) => {
     </div>
   );
 }
+
+SVGTile.propTypes = {
+  index: PropTypes,
+  shapeName: PropTypes,
+  attributes: PropTypes,
+  handleDelete: PropTypes,
+  handleEdit: PropTypes
+};
 
 export default SVGTile
