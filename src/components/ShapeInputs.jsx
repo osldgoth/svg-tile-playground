@@ -358,11 +358,11 @@ const ShapeInputs = ({ shape }) => {
                           <br />
                           {attribute}=
                           <i className="d-none bi bi-box-arrow-in-left" onClick={handleEditCoordLeft}></i>
-                          '{attributes.d?.map((data, index)=> 
+                          &apos;{attributes.d?.map((data, index)=> 
                             (
                               <span key={index} id={index} data-shape-name={shape.toLowerCase()} data-command={data[1]}>{data}</span>
                             ))
-                          }'
+                          }&apos;
                           <i className="d-none bi bi-box-arrow-in-right" onClick={handleEditCoordRight}></i>
                         </p>
                       </label>
@@ -439,11 +439,11 @@ const ShapeInputs = ({ shape }) => {
                         <br />
                         {attribute}= 
                         <i className="d-none bi bi-box-arrow-in-left" onClick={handleEditCoordLeft}></i>
-                        '{attributes.points?.map((data, index)=> 
+                        &apos;{attributes.points?.map((data, index)=> 
                           (
                             <span key={index} id={index} data-shape-name={shape.toLowerCase()} data-paramaters={polyParameters.map(({parameter}) => parameter)}>{data}</span>
                           ))
-                        }'
+                        }&apos;
                         <i className="d-none bi bi-box-arrow-in-right" onClick={handleEditCoordRight}></i>
                       </p>
                     </label>
