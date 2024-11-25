@@ -13,7 +13,7 @@
       }],
       "reloadOnChange": {
         "watch": [ "${workspaceFolder}/src/*.js" ],
-        "ignore": [ "${workspaceFolder}/node_modules/**" ]
+        "ignore": [ "${workspaceFolder}/node_modules/**", "${workspaceFolder}/.vscode/**" ]
       },
       "clearConsoleOnReload": true
     }

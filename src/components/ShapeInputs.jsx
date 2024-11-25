@@ -182,9 +182,9 @@ const ShapeInputs = ({ shape }) => {
 
   const addPolyCoordinateData = (command) => {
     command = command.toLowerCase()
-    
+    console.log('poly command:', command)
     if(!validateElements(command).includes(false)){ //all inputs are valid - proceed
-      const polyPart = `${attributes.poly.x}, ${attributes.poly.y} ` //preserve order x,y
+      const polyPart = `${attributes[command].x}, ${attributes[command].y} ` //preserve order x,y
         
       setAttributes(({ points, poly, ...rest }) => (
         {
@@ -212,7 +212,6 @@ const ShapeInputs = ({ shape }) => {
       }
 
       dPart = ` ${command.toUpperCase()} ${x1} ${y1} ${x2} ${y2} ${rx} ${ry} ${xAxisRotation} ${largeArcFlag} ${sweepFlag} ${x} ${y}`.replace(/\s+/g, ' ').trimEnd()
-      
       setAttributes(({ [command]: extracted, d, ...rest }) => (
         {
           ...rest,
@@ -226,7 +225,6 @@ const ShapeInputs = ({ shape }) => {
     //event.preventDefault()
     command = command.toLowerCase()
     const {d = [], points = [], ...rest} = attributes
-    
     setAttributes(
       {
         "d": d,
@@ -240,21 +238,47 @@ const ShapeInputs = ({ shape }) => {
     )
   }
 
+  const loadSpanDataIntoInputs = () => {
+    const currentSelectedSpanTextSplit = Array.from(document.getElementsByClassName("bg-primary-subtle"))[0].innerText.split(",")
+    console.log(currentSelectedSpanTextSplit)
+    const command = '' //I need to get this
+    const parameter = 'x' //and this
+    setAttributes(({d = [], points = [], ...rest}) => (
+      {
+        "d": d,
+        "points": points,
+        ...rest,
+        [command]: {
+          ...rest[command],
+          [parameter]: currentSelectedSpanTextSplit[0]
+        }
+        
+      })
+    )
+  }
+
   const handleAdvShapeDataEdit = () => { //split path vs poly?
-    //need delete or remove single command
-    //get spans
-    const shapeDataSpans = Array.from(document.querySelectorAll("#shapeData > span"))
-    console.log("spans", shapeDataSpans)
-    //select id# 0-n -- show arrow buttons
-    showEditArrows(); //only if spans > 1? future optimization perhaps
-    // use color
-    const lastElement = shapeDataSpans[shapeDataSpans.length - 1] //no spans if d or points is empty
-    lastElement && lastElement.classList.toggle("bg-primary-subtle")
-    console.log("lastElement.innerText", lastElement?.innerText || 'nil')
-    //load span into inputs via setAttribs 
-    
-    //remove from data
-    //add new data into spot or at the end ?
+    //first: check for highlight(selection)
+    const currentSelectedSpans = Array.from(document.getElementsByClassName("bg-primary-subtle")) //should only be one unless something has gone wrong
+    if(currentSelectedSpans.length > 0){
+      //there are selected spans - they need to be unselected
+      currentSelectedSpans.forEach((span) => {
+        span.classList.toggle("bg-primary-subtle")
+      })
+      hideEditArrows()
+      //clear inputs via setAttributes
+    } else {
+      //get spans
+      const shapeDataSpans = Array.from(document.querySelectorAll("#shapeData > span"))
+      const lastShapeDataSpan = shapeDataSpans[shapeDataSpans.length - 1] //no spans if d or points is empty
+      lastShapeDataSpan && lastShapeDataSpan.classList.toggle("bg-primary-subtle")
+      showEditArrows();
+      //load span into inputs via setAttributes 
+      loadSpanDataIntoInputs()
+      //remove from data
+
+      //add new data into spot or at the end ?
+      }
   }
 
   const showEditArrows = ()=> {
@@ -268,6 +292,7 @@ const ShapeInputs = ({ shape }) => {
   }
 
   const handleAdvShapeDataDelete = () => {
+    //need delete or remove single command
     hideEditArrows();
     setAttributes({
       // "d":[],
@@ -282,10 +307,24 @@ const ShapeInputs = ({ shape }) => {
   }
 
   const handleEditCoordRight = () => {
-    console.log("right")
+    const currentSelectedSpanID = Number(document.getElementsByClassName("bg-primary-subtle")[0].id)
+    const shapeDataSpans = Array.from(document.querySelectorAll("#shapeData > span"))
+    if (currentSelectedSpanID < shapeDataSpans.length - 1){
+      shapeDataSpans[currentSelectedSpanID].classList.toggle("bg-primary-subtle")
+      shapeDataSpans[currentSelectedSpanID + 1].classList.toggle("bg-primary-subtle")
+      //load span into inputs via setAttributes
+      loadSpanDataIntoInputs()
+    }
   }
   const handleEditCoordLeft = () => {
-    console.log("Left")
+    const currentSelectedSpanID = Number(document.getElementsByClassName("bg-primary-subtle")[0].id)
+    const shapeDataSpans = Array.from(document.querySelectorAll("#shapeData > span"))
+    if (currentSelectedSpanID >= 1){
+      shapeDataSpans[currentSelectedSpanID].classList.toggle("bg-primary-subtle")
+      shapeDataSpans[currentSelectedSpanID - 1].classList.toggle("bg-primary-subtle")
+      //load span into inputs via setAttributes
+      loadSpanDataIntoInputs()
+    }
   }
 
   if (!basicShapeConfig[shape] && !advancedShapeConfig[shape]) {
@@ -320,7 +359,7 @@ const ShapeInputs = ({ shape }) => {
                           <i className="d-none bi bi-box-arrow-in-left" onClick={handleEditCoordLeft}></i>
                           '{attributes.d?.map((data, index)=> 
                             (
-                              <span key={index} id={index}>{data}</span>
+                              <span key={index} id={index} data-shape-name={shape.toLowerCase()} data-command={data[1]}>{data}</span>
                             ))
                           }'
                           <i className="d-none bi bi-box-arrow-in-right" onClick={handleEditCoordRight}></i>
@@ -332,6 +371,7 @@ const ShapeInputs = ({ shape }) => {
                         <>
                           {/* <div className='tooltip'> {/*https://www.w3schools.com/css/css_tooltip.asp */}
                           {/*  <span className='tooltipText'>Edit</span> */}
+                          {/* todo: on mobile/small screens switch to buttons&text instead of the below icons */}
                             <i className="bi bi-pencil-square" data-index={index} onClick={handleAdvShapeDataEdit}></i>
                           {/* </div> */}
 
@@ -400,7 +440,7 @@ const ShapeInputs = ({ shape }) => {
                         <i className="d-none bi bi-box-arrow-in-left" onClick={handleEditCoordLeft}></i>
                         '{attributes.points?.map((data, index)=> 
                           (
-                            <span key={index} id={index}>{data}</span>
+                            <span key={index} id={index} data-shape-name={shape.toLowerCase()} data-paramaters={polyParameters.map(({parameter}) => parameter)}>{data}</span>
                           ))
                         }'
                         <i className="d-none bi bi-box-arrow-in-right" onClick={handleEditCoordRight}></i>
@@ -425,11 +465,11 @@ const ShapeInputs = ({ shape }) => {
                         parameter={ parameter }
                         label={ label }
                         isrequired={null}
-                        command={"poly"}
+                        command={shape}
                         />
                       )
                     )}
-                    <button type='button' id='parametersInput' onClick={() => addPolyCoordinateData("poly")}>Add Coordinate {Object.values(attributes["poly"] || {}).join(", ")}</button>
+                    <button type='button' id='parametersInput' onClick={() => addPolyCoordinateData(shape)}>Add Coordinate {Object.values(attributes["poly"] || {}).join(", ")}</button>
                   </fieldset>
                 </div>
               )

@@ -1,13 +1,7 @@
-import React, {useState, createContext} from 'react'
+import {useState, createContext} from 'react'
 //import {v4 as uuidv4} from 'uuid'
 
 const Context = createContext()
-
-// const defaultsvg = React.createElement(
-//   'svg', 
-//   {id: uuidv4(), width: 378, height: 378, style:{border: "solid pink 1px"}}//, key: uuidv4()
-// )
-
 
 const SVGContextProvider = (props) => {
   const [shapeName, setShapeName] = useState("")

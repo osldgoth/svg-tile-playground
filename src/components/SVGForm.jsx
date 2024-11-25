@@ -1,7 +1,7 @@
-import React, {useContext} from 'react'
+import {useContext} from 'react'
 import ShapeInputs from './ShapeInputs'
 import { Context } from "./SVGContext"
-import {v4 as uuidv4} from 'uuid'
+//import {v4 as uuidv4} from 'uuid'
 import SVGTile from './SVGTile'
 
 const SVGForm = () => {
@@ -22,21 +22,21 @@ const SVGForm = () => {
   const handleShapeChange = (event) => {
     setShapeName(event.target.value)
       //reset state to defaults
-    setAttributes({//temp fix?
+    /* setAttributes({//temp fix?
       a: {
         "large-arc-flag": 0,
         "sweep-flag": 0
-      }})
+      }}) */
   }
   
   return (
-    <form id={uuidv4()} className='svgForm' onSubmit={handleFormSubmission}>
+    <form id={''} className='svgForm' onSubmit={handleFormSubmission}>
       <select className='mb-1' name="" id="shapeSelection" onChange={handleShapeChange} value={shapeName}>
-        <option id={uuidv4()} key={uuidv4()} value="" disabled>Select a shape</option>
-        {shapes.map((shape) => {
+        <option id={''} key={'-1'} value="" disabled>Select a shape</option>
+        {shapes.map((shape, index) => {
           return (
-          <option id={uuidv4()} key={uuidv4()} value={shape === "Rectangle" ? "rect" : shape.toLowerCase()}>
-            {shape} 
+          <option id={''} key={index} value={shape === "Rectangle" ? "rect" : shape.toLowerCase()}>
+            {shape}
           </option>)
         })}
       </select>
