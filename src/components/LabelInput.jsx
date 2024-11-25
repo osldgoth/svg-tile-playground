@@ -29,7 +29,7 @@ const LabelInput = ({parameter, label, isrequired, command, shapeName}) => {
 
   return (
     <div>
-      <label htmlFor={parameter}>{label}</label>
+      <label htmlFor={inputID}>{label}</label>
       <input id={inputID} type='number' min={MIN} max={MAX} 
              required={isrequired}
              onChange={event => handleAttributeChange(event, parameter, command)}
