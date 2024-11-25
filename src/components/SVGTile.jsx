@@ -46,11 +46,11 @@ const SVGTile = ({index, shapeName, attributes, handleDelete, handleEdit}) => {
 }
 
 SVGTile.propTypes = {
-  index: PropTypes,
-  shapeName: PropTypes,
-  attributes: PropTypes,
-  handleDelete: PropTypes,
-  handleEdit: PropTypes
+  index: PropTypes.number,
+  shapeName: PropTypes.string,
+  attributes: PropTypes.object,
+  handleDelete: PropTypes.func,
+  handleEdit: PropTypes.func
 };
 
 export default SVGTile
