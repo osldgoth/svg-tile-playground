@@ -240,7 +240,7 @@ const ShapeInputs = ({ shape }) => {
 
   const loadSpanDataIntoInputs = () => {
     const currentSelectedSpanTextSplit = Array.from(document.getElementsByClassName("bg-primary-subtle"))[0].innerText.split(",")
-    console.log(currentSelectedSpanTextSplit)
+    //console.log(currentSelectedSpanTextSplit)
     const command = '' //I need to get this
     const parameter = 'x' //and this
     setAttributes(({d = [], points = [], ...rest}) => (
@@ -326,160 +326,153 @@ const ShapeInputs = ({ shape }) => {
       loadSpanDataIntoInputs()
     }
   }
+/* data-index={index} */
+  const editDeleteIcons = attributes.d?.length > 0 || attributes.points?.length > 0
+    ? <>
+        {/* <div className='tooltip'> {/*https://www.w3schools.com/css/css_tooltip.asp */}
+        {/*  <span className='tooltipText'>Edit</span> */}
+        {/* todo: on mobile/small screens switch to buttons&text instead of the below icons */}
+          <i className="bi bi-pencil-square" onClick={handleAdvShapeDataEdit}></i>
+        {/* </div> */}
+
+        {/* <div className='tooltip'>*/}
+        {/*  <span className='tooltipText'>Edit</span> */}
+          <i className="bi bi-x-octagon" onClick={handleAdvShapeDataDelete}></i>
+        {/* </div> */}
+      </>
+    : <></>;
+
+  const basicShapeInputs = basicShapeConfig[shape]?.map(({ parameter, label }, index) => 
+    <LabelInput
+      key={ parameter + "-" + index }
+      parameter={ parameter }
+      label={ label }
+      isrequired={ 'required' }
+      command={ shape }
+    />
+  );
+  // DO: turn all below into components
+  const advShapeInputs = advancedShapeConfig[shape]?.map(({ attribute, label, commands: pathCommands, parameters: polyParameters }, index) => {
+    return (
+      <div key={attribute  + "-" + label  + "-" + index}>
+        {pathCommands && //Path
+          (
+            <div>
+              {/* { attribute, label, commands: pathCommands, parameters: polyParameters }, index*/}
+              <div className="container" id={attribute + index} key={label + "-" + index}>
+                <div>
+                  <section name={label} value={attribute}>
+                    <p id='shapeData'>
+                      {label}
+                      <br />
+                      {attribute}=
+                      <i className="d-none bi bi-box-arrow-in-left" onClick={handleEditCoordLeft}></i>
+                      &apos;{attributes.d?.map((data, index)=> 
+                        (
+                          <span key={index} id={index} data-shape-name={shape.toLowerCase()} data-command={data[1]}>{data}</span>
+                        ))
+                      }&apos;
+                      <i className="d-none bi bi-box-arrow-in-right" onClick={handleEditCoordRight}></i>
+                      {editDeleteIcons}
+                    </p>
+                  </section>
+                  
+                </div>
+                {pathCommands.map(({command, name, parameters: pathParameters, flags}, index) =>
+                  {
+                    return (
+                      <div className="card" key={command + "-" + name + "-" + index}>
+                        <div className="card-header">
+                            {name}
+                        </div>
+                        <div className="card-body">
+                        {pathParameters?.map(({ parameter, label}, index) => 
+                          <LabelInput 
+                            key={ parameter + "-" + index }
+                            parameter={ parameter }
+                            label={ label }
+                            isrequired={null}
+                            command={command}
+                          />
+                        
+                        )
+                        }
+                        {flags?.map(({ flag, label }, index) =>{
+                          return (
+                            <label key={flag + "-" + index}>
+                              {label} 
+                              <input type='checkbox'
+                                     id={flag + '-' + command} //intentional: leaving command here uppercase to bypass forced require within addPathCoordinateData
+                                     onChange={event => handleCheckedChange(event, flag, command)}
+                                     checked={attributes[command]?.[flag]} // needs to still be 0 even if not checked -> use value?
+                              /> 
+                            </label>
+                          )}
+                          )
+                        }
+                        </div>
+                        <div className="card-footer">
+                          <button type='button' id='commandsInput' onClick={() => addPathCoordinateData(command) }>Add {command}</button>
+                        </div>
+                      </div>
+                    )
+                  })
+                }
+              </div>
+            </div>
+          )
+        }
+        {polyParameters && //Polyline/Polygon
+          (
+            <div>
+              <div>
+                <section name={label} value={attribute} >
+                  <p id='shapeData'>
+                    {label}
+                    <br />
+                    {attribute}= 
+                    <i className="d-none bi bi-box-arrow-in-left" onClick={handleEditCoordLeft}></i>
+                    &apos;{attributes.points?.map((data, index)=> 
+                      (
+                        <span key={index} id={index} data-shape-name={shape.toLowerCase()} data-paramaters={polyParameters.map(({parameter}) => parameter)}>{data}</span>
+                      ))
+                    }&apos;
+                    <i className="d-none bi bi-box-arrow-in-right" onClick={handleEditCoordRight}></i>
+                    {editDeleteIcons}
+                  </p>
+                </section>
+                
+              </div>
+              <fieldset name='parametersForCommand' id=''>
+                {polyParameters.map(({ parameter, label }, index) => 
+                  (
+                    <LabelInput //recreate a labelinput for these to rework set attributes
+                    key={ parameter + "-" + index }
+                    parameter={ parameter }
+                    label={ label }
+                    isrequired={null}
+                    command={shape}
+                    />
+                  )
+                )}
+                <button type='button' id='parametersInput' onClick={() => addPolyCoordinateData(shape)}>Add Coordinate {Object.values(attributes["poly"] || {}).join(", ")}</button>
+              </fieldset>
+            </div>
+          )
+        }
+      </div>
+    )
+  }
+  );
 
   if (!basicShapeConfig[shape] && !advancedShapeConfig[shape]) {
     return null
   };
 
-  return (// DO: turn all below into components at the very least defined above.
-    <div>
-      {basicShapeConfig[shape]?.map(({ parameter, label }, index) => 
-        <LabelInput
-          key={ parameter + "-" + index }
-          parameter={ parameter }
-          label={ label }
-          isrequired={ 'required' }
-          command={ shape }
-        />
-      )}
-      {advancedShapeConfig[shape]?.map(({ attribute, label, commands: pathCommands, parameters: polyParameters }, index) => {
-        return (
-          <div key={attribute  + "-" + label  + "-" + index}>
-            {pathCommands && //Path
-              (
-                <div>
-                  {/* { attribute, label, commands: pathCommands, parameters: polyParameters }, index*/}
-                  <div className="container" id={attribute + index} key={label + "-" + index}>
-                    <div>
-                      <label name={label} value={attribute}>
-                        <p id='shapeData'>
-                          {label}
-                          <br />
-                          {attribute}=
-                          <i className="d-none bi bi-box-arrow-in-left" onClick={handleEditCoordLeft}></i>
-                          &apos;{attributes.d?.map((data, index)=> 
-                            (
-                              <span key={index} id={index} data-shape-name={shape.toLowerCase()} data-command={data[1]}>{data}</span>
-                            ))
-                          }&apos;
-                          <i className="d-none bi bi-box-arrow-in-right" onClick={handleEditCoordRight}></i>
-                        </p>
-                      </label>
-                      {
-                        attributes.d?.length > 0
-                        ? 
-                        <>
-                          {/* <div className='tooltip'> {/*https://www.w3schools.com/css/css_tooltip.asp */}
-                          {/*  <span className='tooltipText'>Edit</span> */}
-                          {/* todo: on mobile/small screens switch to buttons&text instead of the below icons */}
-                            <i className="bi bi-pencil-square" data-index={index} onClick={handleAdvShapeDataEdit}></i>
-                          {/* </div> */}
-
-                          {/* <div className='tooltip'>*/}
-                          {/*  <span className='tooltipText'>Edit</span> */}
-                            <i className="bi bi-x-octagon" data-index={index} onClick={handleAdvShapeDataDelete}></i>
-                          {/* </div> */}
-                        </>
-                        : 
-                        <></>
-                      }
-                    </div>
-                    {pathCommands.map(({command, name, parameters: pathParameters, flags}, index) =>
-                      {
-                        return (
-                          <div className="card" key={command + "-" + name + "-" + index}>
-                            <div className="card-header">
-                                {name}
-                            </div>
-                            <div className="card-body">
-                            {pathParameters?.map(({ parameter, label}, index) => 
-                              <LabelInput 
-                                key={ parameter + "-" + index }
-                                parameter={ parameter }
-                                label={ label }
-                                isrequired={null}
-                                command={command}
-                              />
-                            
-                            )
-                            }
-                            {flags?.map(({ flag, label }, index) =>{
-                              return (
-                                <label key={flag + "-" + index}>
-                                  {label} 
-                                  <input type='checkbox' 
-                                         id={flag + ' ' + command} //intentional: leaving command here uppercase to bypass forced require within addPathCoordinateData
-                                         onChange={event => handleCheckedChange(event, flag, command)} // needs to still be 0 even if not checked -> use value?
-                                         checked={attributes[command]?.[flag]}
-                                  /> 
-                                </label>
-                              )}
-                              )
-                            }
-                            </div>
-                            <div className="card-footer">
-                              <button type='button' id='commandsInput' onClick={() => addPathCoordinateData(command) }>Add {command}</button>
-                            </div>
-                          </div>
-                        )
-                      })
-                    }
-                  </div>
-                </div>
-              )
-            }
-            {polyParameters && //Polyline/Polygon
-              (
-                <div>
-                  <div>
-                    <label name='' value='' >
-                      <p id='shapeData'>
-                        {label}
-                        <br />
-                        {attribute}= 
-                        <i className="d-none bi bi-box-arrow-in-left" onClick={handleEditCoordLeft}></i>
-                        &apos;{attributes.points?.map((data, index)=> 
-                          (
-                            <span key={index} id={index} data-shape-name={shape.toLowerCase()} data-paramaters={polyParameters.map(({parameter}) => parameter)}>{data}</span>
-                          ))
-                        }&apos;
-                        <i className="d-none bi bi-box-arrow-in-right" onClick={handleEditCoordRight}></i>
-                      </p>
-                    </label>
-                    {
-                      attributes.points?.length > 0 
-                      ?
-                      <>
-                        <i className="bi bi-pencil-square" data-index={index} onClick={handleAdvShapeDataEdit}></i>
-                        <i className="bi bi-x-octagon" data-index={index} onClick={handleAdvShapeDataDelete}></i>
-                      </>
-                      :
-                      <></>
-                    }
-                  </div>
-                  <fieldset name='parametersForCommand' id=''>
-                    {polyParameters.map(({ parameter, label }, index) => 
-                      (
-                        <LabelInput //recreate a labelinput for these to rework set attributes
-                        key={ parameter + "-" + index }
-                        parameter={ parameter }
-                        label={ label }
-                        isrequired={null}
-                        command={shape}
-                        />
-                      )
-                    )}
-                    <button type='button' id='parametersInput' onClick={() => addPolyCoordinateData(shape)}>Add Coordinate {Object.values(attributes["poly"] || {}).join(", ")}</button>
-                  </fieldset>
-                </div>
-              )
-            }
-          </div>
-        )
-      }
-      )}
-    </div>
-  );
+  return <>
+    {basicShapeInputs}
+    {advShapeInputs}
+  </>;
 };
 
 ShapeInputs.propTypes = {
