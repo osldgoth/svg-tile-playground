@@ -219,6 +219,13 @@ const ShapeInputs = ({ shape }) => {
         })
       )
     }
+    if(command === 'a'){
+      returnFlagsToUncheckedState()
+    }
+  }
+
+  const returnFlagsToUncheckedState = () => {
+    document.querySelectorAll("#large-arc-flag-A, #sweep-flag-A").forEach((element) => element.checked = false)
   }
 
   const handleCheckedChange = (event, flag, command) => {
