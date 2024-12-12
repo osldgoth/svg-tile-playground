@@ -7,24 +7,21 @@ const MAX = 378
 
 const LabelInput = ({parameter, label, isrequired, command, shapeName}) => { 
   //FYI: sometimes command is a shapeName (rect, cir, etc) and other times it is a path command (a, m, l, ect)
-  const { attributes, setAttributes} = useContext(Context) //currentSVG, setCurrentSVG, shapeName, setAllSVGs, allSVGs, setShapeName,, coordinateData
+  const {inputData, setInputData} = useContext(Context)
   command = command.toLowerCase()
   const inputID = parameter + ' ' + command
 
   const handleAttributeChange = (event, parameter, command) => {
     event.preventDefault()
-    setAttributes(({d = [], points = [], ...rest}) => (
+    setInputData((previousInputData) => (
       {
-        "d": d,
-        "points": points,
-        ...rest,
+        ...previousInputData,
         [command]: {
-          ...rest[command],
-          [parameter]: event.target.value
+          ...previousInputData[command],
+          [parameter]: Number(event.target.value)
         }
-        
-      })
-    )
+      }
+    ))
   }
 
   return (
@@ -33,7 +30,7 @@ const LabelInput = ({parameter, label, isrequired, command, shapeName}) => {
       <input id={inputID} type='number' min={MIN} max={MAX} 
              required={isrequired}
              onChange={event => handleAttributeChange(event, parameter, command)}
-             value={attributes[command]?.[parameter] || ''}
+             value={inputData[command]?.[parameter] || ''}
              placeholder={`min ${MIN} to max ${MAX}`}
       />
     </div>
