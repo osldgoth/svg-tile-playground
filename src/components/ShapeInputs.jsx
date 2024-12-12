@@ -1,7 +1,7 @@
 import { useContext } from 'react';
 import  LabelInput from './LabelInput'
 import { Context } from './SVGContext';
-import PropTypes from 'prop-types';
+import PropTypes, { element } from 'prop-types';
 
 
 const basicShapeConfig = {
@@ -153,7 +153,7 @@ const advancedShapeConfig = {
 }
 
 const ShapeInputs = ({ shape }) => {
-  const {attributes, setAttributes} = useContext(Context)
+  const {attributes, setAttributes, inputData, setInputData, processedData, setProcessedData} = useContext(Context)
 
   const validateElements = (command) => {
     command = command.toLowerCase()
@@ -181,10 +181,32 @@ const ShapeInputs = ({ shape }) => {
     return validity
   }
 
+  const sortByAttributeOrder = (data) => {
+    const attributeOrder = ['x1', 'y1', 'x2', 'y2', 'rx', 'ry', 'x-axis-rotation', 'large-arc-flag', 'sweep-flag', 'x', 'y']
+    let sortedData = {}
+    attributeOrder.forEach((attribute) => {
+      if(data[attribute] !== undefined){
+        sortedData[attribute] = data[attribute]
+      }
+    })
+    return sortedData
+  }
+
+  const verifyArcFlags = (data, command) => {
+    if(command !== 'a') return data
+    data['large-arc-flag'] ? null : data['large-arc-flag'] = 0
+    data['sweep-flag'] ? null : data['sweep-flag'] = 0
+    return data
+  }
+
   const addPolyCoordinateData  = (command) => {
     command = command.toLowerCase()
-    if(!validateElements(command).includes(false)){ //all inputs are valid - proceed
-      const polyPart = `${attributes[command].x}, ${attributes[command].y} ` //preserve order x,y
+    if(validateElements(command).includes(false)){return} //all inputs are valid - proceed
+
+    const sortedInputData = sortByAttributeOrder(inputData[command])
+    //todo: start here ***
+
+    const polyPart = `${attributes[command].x}, ${attributes[command].y} ` //preserve order x,y
         
       setAttributes(({ points, polygon, polyline, ...rest }) => (
         {
@@ -192,33 +214,36 @@ const ShapeInputs = ({ shape }) => {
           "points": [...points, polyPart]
         })
       )
-    }
   }
 
-  const addPathCoordinateData = (command) => {// try to optimise later
+  const addPathCoordinateData = (command) => {
     command = command.toLowerCase()
-    let validity = validateElements(command);
 
-    if(!validity.includes(false)){ //all inputs are valid - proceed
-      let dPrefix = ''
-      let dPart = ''
-      let flagDefault = command === 'a'? '0' : ''
+    if(validateElements(command).includes(false)){return} //all inputs are valid - proceed 
+    
+    const flagVerifiedInput = verifyArcFlags(inputData[command], command)
+    const sortedInputData = sortByAttributeOrder(flagVerifiedInput)
 
-      const {x1 = '', y1 = '', x2 = '', y2 = '', rx = '', ry = '', 'x-axis-rotation': xAxisRotation = '',
-            "large-arc-flag": largeArcFlag = flagDefault, "sweep-flag": sweepFlag = flagDefault, x = '', y = ''} = attributes[command] 
+    let updatedInputData = [{[command]: sortedInputData}];
 
-      if(command !== 'm' && attributes.d.length === 0){
-        dPrefix = 'M 0 0'
-      }
-
-      dPart = ` ${command.toUpperCase()} ${x1} ${y1} ${x2} ${y2} ${rx} ${ry} ${xAxisRotation} ${largeArcFlag} ${sweepFlag} ${x} ${y}`.replace(/\s+/g, ' ').trimEnd()
-      setAttributes(({ [command]: extracted, d, ...rest }) => (
-        {
-          ...rest,
-          "d": dPrefix ? [dPrefix, ...d, dPart] : [...d, dPart]
-        })
-      )
+    // Check if 'm' needs to be added as the first command
+    if (processedData.length === 0 && command !== 'm') { 
+      updatedInputData.unshift({m:  { y: 0, x: 0 }})
     }
+
+    setProcessedData((previous) => (
+      [
+        ...previous,
+        ...updatedInputData
+      ]
+    ));
+
+    setInputData((previousInputdata) => {
+      delete previousInputdata[command]
+      return previousInputdata
+      }
+    )
+  
     if(command === 'a'){
       returnFlagsToUncheckedState()
     }
@@ -231,11 +256,21 @@ const ShapeInputs = ({ shape }) => {
   const handleCheckedChange = (event, flag, command) => {
     //event.preventDefault()
     command = command.toLowerCase()
-    const {d = [], points = [], ...rest} = attributes
+    setInputData((previousInputData) => (
+      {
+        ...previousInputData,
+        [command]: {
+          ...previousInputData[command],
+          [flag]: event.target.checked? 1 : 0
+        }
+      }
+    ))
+
+    const {d, points, ...rest} = attributes  //removed default `= []`
     setAttributes(
       {
-        "d": d,
-        "points": points,
+        //"d": d,
+        //"points": points,
         ...rest,
         [command]: {
           ...rest[command],
@@ -301,16 +336,7 @@ const ShapeInputs = ({ shape }) => {
   const handleAdvShapeDataDelete = () => {
     //need delete or remove single command
     hideEditArrows();
-    setAttributes({
-      // "d":[],
-      // "points":[],
-      // "poly": {}
-     //temp fix?
-     /*  a: {
-        "large-arc-flag": 0,
-        "sweep-flag": 0
-      } */
-    })
+    setAttributes({})
   }
 
   const handleEditCoordRight = () => {
