@@ -7,13 +7,13 @@ import { Context } from "./SVGContext"
 
 const SVGTileWrapper = () => {
   const {
-    shapeName, setShapeName, 
-    //currentSVG, setCurrentSVG, 
-    allSVGs, setAllSVGs, 
-    attributes, setAttributes,
-    //Command, setCommand,
-    //coordinateData, setcoordinateData
-  } = useContext(Context) //currentSVG, setCurrentSVG, shapeName, attributes,
+          setShapeName, 
+          allSVGs, setAllSVGs, 
+          setInputData, setProcessedData,
+          setPath,
+          setPoly,
+          setBasic
+        } = useContext(Context)
   
 
   const handleDelete = (event) =>{
@@ -24,13 +24,19 @@ const SVGTileWrapper = () => {
 
   const handleEdit = (event) =>{
     const indexAsInt = parseInt(event.target.getAttribute('data-index'))
-    const attributes = allSVGs[indexAsInt].attributes //{d, points etc}
     const shapeName = allSVGs[indexAsInt].shapeName
-    //set shapeSelect
+    const inputData = allSVGs[indexAsInt].basic ? {[shapeName]: allSVGs[indexAsInt].basic} : {}
+    const processedData = allSVGs[indexAsInt].processedData
+    const path = allSVGs[indexAsInt].path 
+    const poly = allSVGs[indexAsInt].poly
     setShapeName(shapeName)
     //set inputs
-    setAttributes(attributes)
-    //then delete svg out of allsvgs to replace with updated svg
+    setInputData(inputData)
+    setProcessedData(processedData)
+    setPath(path)
+    setPoly(poly)
+    setBasic('')
+    //then delete svg out of allsvgs
     setAllSVGs([...allSVGs.filter((_, i) => i !== indexAsInt)])
   }
 
@@ -38,14 +44,14 @@ const SVGTileWrapper = () => {
     <div className='container mt-3'>
       <h3>SVG playground.</h3> 
       <p>The following is not an exhaustive SVG builder, but rather a very basic and rudimentary one. 
-        I have created it simply for myself to become more familiar with SVG&apos;s and along the way React by building it.
+        I have created it simply for myself to become more familiar with SVG&apos;s and, along the way, React by building it.
         For now I am sticking to absolute coordinates for simplicity.
       </p>
       <SVGForm/>
 
-      {allSVGs.map(({shapeName, attributes, coordinateData}, index)=> { 
+      {allSVGs.map((svgData, index)=> { 
         return (
-          <SVGTile key={index} index={index} shapeName={shapeName} attributes={attributes} coordinateData={coordinateData} handleDelete={handleDelete} handleEdit={handleEdit}/>
+          <SVGTile key={index} index={index} svgData={svgData} handleDelete={handleDelete} handleEdit={handleEdit}/>
         )
       })}
     </div>
