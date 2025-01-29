@@ -206,7 +206,7 @@ const ShapeInputs = ({ shape }) => {
     })
   }, [setDefaultShape, shape])
 
-  const validateElements = (command) => {
+  const validateElements = (command) => {//path, poly
     const validity = []
     //require input on shape path via non-submit buttons
     // intentional: excludes checkboxes
@@ -231,7 +231,7 @@ const ShapeInputs = ({ shape }) => {
     return validity
   }
 
-  const sortByAttributeOrder = (data) => {
+  const sortByAttributeOrder = (data) => {//poly, path
     const attributeOrder = ['x1', 'y1', 'x2', 'y2', 'rx', 'ry', 'x-axis-rotation', 'large-arc-flag', 'sweep-flag', 'x', 'y']
     let sortedData = {}
     attributeOrder.forEach((attribute) => {
@@ -242,37 +242,37 @@ const ShapeInputs = ({ shape }) => {
     return sortedData
   }
 
-  const verifyArcFlags = (data, command) => {
+  const verifyArcFlags = (data, command) => {//path
     if(command !== 'A') return data
     data['large-arc-flag'] ? null : data['large-arc-flag'] = 0
     data['sweep-flag'] ? null : data['sweep-flag'] = 0
     return data
   }
 
-  const createPathFromObject = (incommingData) => {
+  const createPathFromObject = (incommingData) => {//path
     const pathCommand = Object.keys(incommingData)[0]
     const pathCoords = Object.values(incommingData[pathCommand]).join(' ')
     return `${pathCommand} ${pathCoords}`
   }
 
-  const createPathFromArrayOfObjects = (incommingData) => {
+  const createPathFromArrayOfObjects = (incommingData) => {//path
     //validate data?
     return incommingData.reduce((path, data) => {
       return path.concat(' ', createPathFromObject(data)).trim()
     }, '')
   }
 
-  const createPolyFromObject = (incomingData) => {
+  const createPolyFromObject = (incomingData) => {//poly
     return Object.values(incomingData).join(', ')
   }
 
-  const createPolyFromArrayOfObjects =  (incomingData) => {
+  const createPolyFromArrayOfObjects =  (incomingData) => {//poly
     return incomingData.reduce((poly, data) => {
       return poly.concat(" ", createPolyFromObject(data))
     }, '').trim();
   }
 
-  const addPolyCoordinateData  = (shape) => {
+  const addPolyCoordinateData  = (shape) => {//poly
     shape = shape.toLowerCase()
     if(validateElements(shape).includes(false)){return} //at least one input is invalid - stop
 
@@ -297,7 +297,7 @@ const ShapeInputs = ({ shape }) => {
     )
   }
 
-  const addPathCoordinateData = (command) => {
+  const addPathCoordinateData = (command) => {//path
     if(validateElements(command).includes(false)){return} //at least one input is invalid - stop 
     if(!inputData[command]) {return}
 
@@ -331,7 +331,7 @@ const ShapeInputs = ({ shape }) => {
     )
   }
 
-  const handleCheckedChange = (event, flag, command) => {
+  const handleCheckedChange = (event, flag, command) => {//path
     setInputData((previousInputData) => (
       {
         ...previousInputData,
@@ -343,7 +343,7 @@ const ShapeInputs = ({ shape }) => {
     ))
   }
 
-  const handleAttributeChange = (event, parameter, command, shapeName) => {
+  const handleAttributeChange = (event, parameter, command, shapeName) => {//path, poly, basic
     const shapeNameLower = shapeName.toLowerCase()
     const userInputValue = event.target.value
     if(advancedShapeConfig[shapeName]?.[0]?.eggs){
@@ -387,13 +387,13 @@ const ShapeInputs = ({ shape }) => {
     })
   }
 
-const removeHighlightedSpans = (currentSelectedSpans) => {
+const removeHighlightedSpans = (currentSelectedSpans) => {//path, poly
   currentSelectedSpans.forEach((span) => {
     span.classList.toggle("bg-primary-subtle")
   })
 }
 
-  const handleAdvShapeDataEdit = (shape) => {
+  const handleAdvShapeDataEdit = (shape) => {//path, poly
     //first: check for highlight(selection) to toggle off - get out of edit mode
     const currentSelectedSpans = Array.from(document.getElementsByClassName("bg-primary-subtle")) //should only be one unless something has gone wrong
     if(currentSelectedSpans.length > 0){
@@ -425,24 +425,24 @@ const removeHighlightedSpans = (currentSelectedSpans) => {
       }
   }
 
-  const showEditArrows = ()=> {
+  const showEditArrows = ()=> {//path, poly
     const arrows = document.querySelectorAll("#shapeData > i");
     arrows.forEach(iElement => iElement.classList.replace("d-none", "d-inline"));
   }
   
-  const hideEditArrows = () => {
+  const hideEditArrows = () => {//path, poly
     const arrows = document.querySelectorAll("#shapeData > i");
     arrows.forEach(iElement => iElement.classList.replace("d-inline", "d-none"));
   }
 
-  const getNextSpanIndex = (index, arrayLength) => {
+  const getNextSpanIndex = (index, arrayLength) => {//path, poly
     if(arrayLength === 1) return -1
     if(index === 0) return index
     //as if index <= arrayLength - 1
     return index - 1
   }
 
-  const handleAdvShapeProcessedDataDelete = (shape) => {
+  const handleAdvShapeProcessedDataDelete = (shape) => {//path, poly
     const processedDataIndex = Number(document.getElementsByClassName("bg-primary-subtle")[0]?.dataset.processeddataIndex)
     if(processedDataIndex === 0 && processedData.data.length > 1 && Object.keys(processedData.data[0])[0] === 'M'){ //don't delete that one; svg complains if it is missing
       //display a message to user?
@@ -492,7 +492,7 @@ const removeHighlightedSpans = (currentSelectedSpans) => {
     }
   }
 
-  const handleEditCoordRight = (shape) => {    
+  const handleEditCoordRight = (shape) => {  // path, poly  
     const processedDataIndex = Number(document.getElementsByClassName("bg-primary-subtle")[0]?.dataset.processeddataIndex)
     const shapeDataSpans = Array.from(document.querySelectorAll("#shapeData > span"))
     if (processedDataIndex < shapeDataSpans.length - 1){
@@ -511,7 +511,7 @@ const removeHighlightedSpans = (currentSelectedSpans) => {
     }
   }
 
-  const handleEditCoordLeft = (shape) => {
+  const handleEditCoordLeft = (shape) => {// path, poly
     const processedDataIndex = Number(document.getElementsByClassName("bg-primary-subtle")[0]?.dataset.processeddataIndex)
     if (processedDataIndex >= 1){
       const shapeDataSpans = Array.from(document.querySelectorAll("#shapeData > span"))
@@ -545,7 +545,8 @@ const removeHighlightedSpans = (currentSelectedSpans) => {
       </>
     : <></>;
 
-  const htmlForPath = (processedData) => {
+  const htmlForPath = (processedData) => {//path
+    if(shape !== 'PATH'){return ''}
     if(processedData?.data?.length === 0){return ''}
     return processedData?.data?.map((object, index, array) => {
       const highlight = processedData.meta?.["bg-primary-subtle"] === index ? "bg-primary-subtle" : ''
@@ -562,7 +563,8 @@ const removeHighlightedSpans = (currentSelectedSpans) => {
 
   const pathHTML = htmlForPath(processedData)
 
-  const htmlForPoly = (processedData) => {
+  const htmlForPoly = (processedData) => {//poly
+    if(!shape.includes('POLY')){return ''}
     if(processedData?.data?.length === 0){return ''}
     return processedData?.data?.map((object, index, array) => {
       const highlight = processedData.meta?.["bg-primary-subtle"] === index ? "bg-primary-subtle" : ''
@@ -578,7 +580,7 @@ const removeHighlightedSpans = (currentSelectedSpans) => {
 
   const polyHTML = htmlForPoly(processedData)
 
-  const handleRandomInput = (shapeName, command, parameters) => {
+  const handleRandomInput = (shapeName, command, parameters) => {//path, poly, basic
     const paramValues = parameters.reduce((params, object) => {
       params[object.parameter] = Math.floor(Math.random() * 379)
       return params
@@ -591,7 +593,7 @@ const removeHighlightedSpans = (currentSelectedSpans) => {
     })
   }
 
-  const handleZCommand = () => {
+  const handleZCommand = () => {//path
     setProcessedData((previous) => {
       const updatedProcessedData = { ...previous }
       if(updatedProcessedData.data.length === 0) return updatedProcessedData
@@ -605,7 +607,7 @@ const removeHighlightedSpans = (currentSelectedSpans) => {
     })
   }
 
-  const findClosePathCoordinates = (processedData) => {
+  const findClosePathCoordinates = (processedData) => {//path
     return processedData?.data?.findLast((entry) => {
       const command = Object.keys(entry)[0]
       if(command === 'M') {
@@ -620,7 +622,7 @@ const removeHighlightedSpans = (currentSelectedSpans) => {
     return value.concat(current.join(': ').toUpperCase(), separator)
   }, '')
 
-const basicShapeInputsWithRandom = <>
+const basicShapeInputsWithRandom =<>
       {basicShapeConfig[shape]?.parameters?.map(({ parameter, label }, index) => 
         <div key={ parameter + "-" + index }>
           <label>{ label }
@@ -640,25 +642,25 @@ const basicShapeInputsWithRandom = <>
   const advShapeInputs = advancedShapeConfig[shape]?.map(({ attribute, label, commands: pathCommands, parameters: polyParameters }, index) => {
     return (
       <div key={`${attribute} ${label} ${index}`}>
+        <div>
+          <section name={label} value={attribute}>
+            <p id='shapeData'>
+              {label}
+              <br />
+              {attribute}=
+              <i className="d-none bi bi-box-arrow-in-left" onClick={() => handleEditCoordLeft(shape.toLowerCase())}></i>
+              &apos;{pathHTML || polyHTML}&apos;
+              <i className="d-none bi bi-box-arrow-in-right" onClick={() => handleEditCoordRight(shape.toLowerCase())}></i>
+              {editDeleteIcons}
+            </p>
+          </section>
+        </div>
+
         {pathCommands && //Path
           (
             <div>
               {/* { attribute, label, commands: pathCommands, parameters: polyParameters }, index*/}
               <div className="container" id={attribute + index} key={label + "-" + index}>
-                <div>
-                  <section name={label} value={attribute}>
-                    <p id='shapeData'>
-                      {label}
-                      <br />
-                      {attribute}=
-                      <i className="d-none bi bi-box-arrow-in-left" onClick={() => handleEditCoordLeft(shape.toLowerCase())}></i>
-                      &apos;{pathHTML}&apos;
-                      <i className="d-none bi bi-box-arrow-in-right" onClick={() => handleEditCoordRight(shape.toLowerCase())}></i>
-                      {editDeleteIcons}
-                    </p>
-                  </section>
-                  
-                </div>
                 {pathCommands.map(({command, name, parameters: pathParameters, flags}, index) => {
                     return (
                       <div className="card" key={command + "-" + name + "-" + index}>
@@ -729,20 +731,6 @@ const basicShapeInputsWithRandom = <>
         {polyParameters && //Polyline/Polygon
           (
             <div>
-              <div>
-                <section name={label} value={attribute} >
-                  <p id='shapeData'>
-                    {label}
-                    <br />
-                    {attribute}= 
-                    <i className="d-none bi bi-box-arrow-in-left" onClick={() => handleEditCoordLeft(shape.toLowerCase())}></i>
-                    &apos;{polyHTML}&apos;
-                    <i className="d-none bi bi-box-arrow-in-right" onClick={() => handleEditCoordRight(shape.toLowerCase())}></i>
-                    {editDeleteIcons}
-                  </p>
-                </section>
-                
-              </div>
               <fieldset name='parametersForCommand' id=''>
                 {polyParameters.map(({ parameter, label }, index) => (
                   <div key={ `${shape}-${parameter}-${index}` }>
