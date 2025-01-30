@@ -1,6 +1,7 @@
 import { useContext, useEffect} from 'react';
 import { Context } from './SVGContext';
 import PropTypes from 'prop-types';
+import AdvShapeDetailSection from './AdvShapeDetailSection';
 
 
 const basicShapeConfig = {
@@ -546,8 +547,8 @@ const removeHighlightedSpans = (currentSelectedSpans) => {//path, poly
     : <></>;
 
   const htmlForPath = (processedData) => {//path
-    if(shape !== 'PATH'){return ''}
-    if(processedData?.data?.length === 0){return ''}
+    if(shape !== 'PATH'){return []}
+    if(processedData?.data?.length === 0){return []}
     return processedData?.data?.map((object, index, array) => {
       const highlight = processedData.meta?.["bg-primary-subtle"] === index ? "bg-primary-subtle" : ''
       const keyCommand = Object.keys(object)[0]
@@ -564,8 +565,8 @@ const removeHighlightedSpans = (currentSelectedSpans) => {//path, poly
   const pathHTML = htmlForPath(processedData)
 
   const htmlForPoly = (processedData) => {//poly
-    if(!shape.includes('POLY')){return ''}
-    if(processedData?.data?.length === 0){return ''}
+    if(!shape.includes('POLY')){return []}
+    if(processedData?.data?.length === 0){return []}
     return processedData?.data?.map((object, index, array) => {
       const highlight = processedData.meta?.["bg-primary-subtle"] === index ? "bg-primary-subtle" : ''
       const values = Object.values(object).join(', ')
@@ -622,7 +623,7 @@ const removeHighlightedSpans = (currentSelectedSpans) => {//path, poly
     return value.concat(current.join(': ').toUpperCase(), separator)
   }, '')
 
-const basicShapeInputsWithRandom =<>
+const basicShapeInputsWithRandom = <>
       {basicShapeConfig[shape]?.parameters?.map(({ parameter, label }, index) => 
         <div key={ parameter + "-" + index }>
           <label>{ label }
@@ -635,26 +636,33 @@ const basicShapeInputsWithRandom =<>
           </label>
         </div>
       )}
-      {basicShapeConfig[shape] && <button type='button' id={`${shape.toLowerCase()}-Random`} onClick={() => handleRandomInput(`${shape.charAt(0).toUpperCase()}${shape.slice(1).toLowerCase()}`, '', basicShapeConfig[shape].parameters)}>Random</button>}
+      {basicShapeConfig[shape] && <button type='button' id={`${shape.toLowerCase()}-Random`} onClick={() => handleRandomInput(shape.toLowerCase(), '', basicShapeConfig[shape].parameters)}>Random</button>}
     </>
 
   // DO: turn all below into components if/as able
   const advShapeInputs = advancedShapeConfig[shape]?.map(({ attribute, label, commands: pathCommands, parameters: polyParameters }, index) => {
     return (
       <div key={`${attribute} ${label} ${index}`}>
-        <div>
-          <section name={label} value={attribute}>
-            <p id='shapeData'>
-              {label}
-              <br />
-              {attribute}=
-              <i className="d-none bi bi-box-arrow-in-left" onClick={() => handleEditCoordLeft(shape.toLowerCase())}></i>
-              &apos;{pathHTML || polyHTML}&apos;
-              <i className="d-none bi bi-box-arrow-in-right" onClick={() => handleEditCoordRight(shape.toLowerCase())}></i>
-              {editDeleteIcons}
-            </p>
-          </section>
-        </div>
+        <AdvShapeDetailSection 
+          attribute={attribute} 
+          label={label} 
+          sectionHTML={pathHTML || polyHTML} 
+          handleEditCoordLeft={handleEditCoordLeft} 
+          handleEditCoordRight={handleEditCoordRight} 
+          editDeleteIcons={editDeleteIcons}
+          shape={shape}
+        />
+      {/* 
+        <section name={label} value={attribute}>
+          <h5>{label}</h5>
+          <p id='shapeData'>
+            {attribute}=
+            <i className="d-none bi bi-box-arrow-in-left" onClick={() => handleEditCoordLeft(shape.toLowerCase())}></i>
+            &apos;{pathHTML || polyHTML}&apos;
+            <i className="d-none bi bi-box-arrow-in-right" onClick={() => handleEditCoordRight(shape.toLowerCase())}></i>
+            {editDeleteIcons}
+          </p>
+        </section> */}
 
         {pathCommands && //Path
           (
