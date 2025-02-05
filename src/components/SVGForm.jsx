@@ -63,11 +63,11 @@ const SVGForm = () => {
         })}
       </select>
 
-      <ShapeInputs shape={shapeName.toUpperCase()}/>
+      <ShapeInputs shape={shapeName.toUpperCase()} />
       <SVGTile index={-1} svgData={{shapeName, processedData, path, poly, basic}}/>
       {shapeName &&
         <>
-          <button type='button'>Add this {shapeName}</button>
+          <button type='button'>Add this {shapeName} to current svg</button>
           <button type='submit' className='submit-svg-form my-3'>Save SVG</button>
         </>
       }
