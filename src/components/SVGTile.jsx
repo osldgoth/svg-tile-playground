@@ -7,7 +7,6 @@ const SVGTile = ({index, svgData, handleDelete, handleEdit}) => {
   const shapeName = svgData.shapeName
   const shapeNameLowerCase = shapeName.toLowerCase()
   let createdShape = null;
-
   const getShapeData = () => {
     if(shapeName === "Path") {
       const pathOrFallback = path || svgData.path
@@ -17,7 +16,7 @@ const SVGTile = ({index, svgData, handleDelete, handleEdit}) => {
       const polyOrFallback = poly || svgData.poly
       return polyOrFallback ? {points: polyOrFallback} : {} 
     }
-    return svgData.basic || inputData[shapeName] || {} 
+    return svgData.basic || inputData[shapeName.toLowerCase()] || {} 
   }
 
   const shapeData = getShapeData()
@@ -46,16 +45,14 @@ const SVGTile = ({index, svgData, handleDelete, handleEdit}) => {
   )
 
   return (
-    <div className="container" data-allsvgs-index={index}>
-      <div className="card">
-        <div className="card-header">
-          <h2>{shapeName}</h2>
-          {handleDelete ? <i className="bi bi-pencil-square" data-index={index} onClick={handleEdit}></i> : <></>}
-          {handleEdit ? <i className="bi bi-x-octagon" data-index={index} onClick={handleDelete}></i> : <></>}
-        </div>
-        <div className="card-body">
-          {currentsvg}
-        </div>
+    <div className="card" data-allsvgs-index={index}>
+      <div className="card-header">
+        <h2>{shapeName}</h2>
+        {handleDelete ? <i className="bi bi-pencil-square" data-index={index} onClick={handleEdit}></i> : <></>}
+        {handleEdit ? <i className="bi bi-x-octagon" data-index={index} onClick={handleDelete}></i> : <></>}
+      </div>
+      <div className="card-body">
+        {currentsvg}
       </div>
     </div>
   );

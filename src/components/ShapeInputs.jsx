@@ -2,43 +2,45 @@ import { useContext, useEffect} from 'react';
 import { Context } from './SVGContext';
 import PropTypes from 'prop-types';
 import AdvShapeDetailSection from './AdvShapeDetailSection';
+import PathCommandMapDetails from './PathCommandMapDetails'
+import PolyParametersMapDetails from './PolyParametersMapDetails'
 
 
 const basicShapeConfig = {
   RECT: {
     parameters: [
-      { parameter: "x", label: "X Coordinate", reqired: "true" },
-      { parameter: "y", label: "Y Coordinate" }, //reqired: "true"
-      { parameter: "height", label: "Height" }, //reqired: "true"
-      { parameter: "width", label: "Width" }, //reqired: "true"
-      { parameter: "rx", label: "X Radius", reqired: "false" },
-      { parameter: "ry", label: "Y Radius" }, //reqired: "false"
+      { parameter: "x", label: "X Coordinate" },
+      { parameter: "y", label: "Y Coordinate" }, 
+      { parameter: "height", label: "Height" }, 
+      { parameter: "width", label: "Width" }, 
+      { parameter: "rx", label: "X Radius" },
+      { parameter: "ry", label: "Y Radius" }, 
     ],
     defaultShape: { x: 33, y: 79, height: 144, width: 186, rx: 206, ry: 26 }
   },
   CIRCLE: {
     parameters: [
-      { parameter: "r", label: "Radius" }, //reqired: "true"
-      { parameter: "cx", label: "Center X" }, //reqired: "true"
-      { parameter: "cy", label: "Center Y" }, //reqired: "true"
+      { parameter: "r", label: "Radius" }, 
+      { parameter: "cx", label: "Center X" }, 
+      { parameter: "cy", label: "Center Y" }, 
     ],
     defaultShape: { r: 50, cx: 124, cy: 99 }
   },
   ELLIPSE: {
     parameters: [
-      { parameter: "rx", label: "Radius X" }, //reqired: "true"
-      { parameter: "ry", label: "Radius Y" }, //reqired: "true"
-      { parameter: "cx", label: "Center X" }, //reqired: "true"
-      { parameter: "cy", label: "Center Y" }, //reqired: "true"
+      { parameter: "rx", label: "Radius X" }, 
+      { parameter: "ry", label: "Radius Y" }, 
+      { parameter: "cx", label: "Center X" }, 
+      { parameter: "cy", label: "Center Y" }, 
     ],
     defaultShape: { rx: 163, ry: 43, cx: 210, cy: 205 }
   },
   LINE: {
     parameters: [
-      { parameter: "x1", label: "X1" }, //reqired: "true"
-      { parameter: "y1", label: "Y1" }, //reqired: "true"
-      { parameter: "x2", label: "X2" }, //reqired: "true"
-      { parameter: "y2", label: "Y2" }, //reqired: "true"
+      { parameter: "x1", label: "X1" }, 
+      { parameter: "y1", label: "Y1" }, 
+      { parameter: "x2", label: "X2" }, 
+      { parameter: "y2", label: "Y2" }, 
     ],
     defaultShape: { x1: 91, y1: 181, x2: 287, y2: 100 }
   }
@@ -207,7 +209,7 @@ const ShapeInputs = ({ shape }) => {
     })
   }, [setDefaultShape, shape])
 
-  const validateElements = (command) => {//path, poly
+  const validateElements = (command) => {
     const validity = []
     //require input on shape path via non-submit buttons
     // intentional: excludes checkboxes
@@ -232,7 +234,7 @@ const ShapeInputs = ({ shape }) => {
     return validity
   }
 
-  const sortByAttributeOrder = (data) => {//poly, path
+  const sortByAttributeOrder = (data) => {
     const attributeOrder = ['x1', 'y1', 'x2', 'y2', 'rx', 'ry', 'x-axis-rotation', 'large-arc-flag', 'sweep-flag', 'x', 'y']
     let sortedData = {}
     attributeOrder.forEach((attribute) => {
@@ -243,37 +245,37 @@ const ShapeInputs = ({ shape }) => {
     return sortedData
   }
 
-  const verifyArcFlags = (data, command) => {//path
+  const verifyArcFlags = (data, command) => {
     if(command !== 'A') return data
     data['large-arc-flag'] ? null : data['large-arc-flag'] = 0
     data['sweep-flag'] ? null : data['sweep-flag'] = 0
     return data
   }
 
-  const createPathFromObject = (incommingData) => {//path
+  const createPathFromObject = (incommingData) => {
     const pathCommand = Object.keys(incommingData)[0]
     const pathCoords = Object.values(incommingData[pathCommand]).join(' ')
     return `${pathCommand} ${pathCoords}`
   }
 
-  const createPathFromArrayOfObjects = (incommingData) => {//path
+  const createPathFromArrayOfObjects = (incommingData) => {
     //validate data?
     return incommingData.reduce((path, data) => {
       return path.concat(' ', createPathFromObject(data)).trim()
     }, '')
   }
 
-  const createPolyFromObject = (incomingData) => {//poly
+  const createPolyFromObject = (incomingData) => {
     return Object.values(incomingData).join(', ')
   }
 
-  const createPolyFromArrayOfObjects =  (incomingData) => {//poly
+  const createPolyFromArrayOfObjects =  (incomingData) => {
     return incomingData.reduce((poly, data) => {
       return poly.concat(" ", createPolyFromObject(data))
     }, '').trim();
   }
 
-  const addPolyCoordinateData  = (shape) => {//poly
+  const addPolyCoordinateData  = (shape) => {
     shape = shape.toLowerCase()
     if(validateElements(shape).includes(false)){return} //at least one input is invalid - stop
 
@@ -298,7 +300,7 @@ const ShapeInputs = ({ shape }) => {
     )
   }
 
-  const addPathCoordinateData = (command) => {//path
+  const addPathCoordinateData = (command) => {
     if(validateElements(command).includes(false)){return} //at least one input is invalid - stop 
     if(!inputData[command]) {return}
 
@@ -332,7 +334,7 @@ const ShapeInputs = ({ shape }) => {
     )
   }
 
-  const handleCheckedChange = (event, flag, command) => {//path
+  const handleCheckedChange = (event, flag, command) => {
     setInputData((previousInputData) => (
       {
         ...previousInputData,
@@ -344,7 +346,7 @@ const ShapeInputs = ({ shape }) => {
     ))
   }
 
-  const handleAttributeChange = (event, parameter, command, shapeName) => {//path, poly, basic
+  const handleAttributeChange = (event, parameter, command, shapeName) => {
     const shapeNameLower = shapeName.toLowerCase()
     const userInputValue = event.target.value
     if(advancedShapeConfig[shapeName]?.[0]?.eggs){
@@ -388,13 +390,13 @@ const ShapeInputs = ({ shape }) => {
     })
   }
 
-const removeHighlightedSpans = (currentSelectedSpans) => {//path, poly
+const removeHighlightedSpans = (currentSelectedSpans) => {
   currentSelectedSpans.forEach((span) => {
     span.classList.toggle("bg-primary-subtle")
   })
 }
 
-  const handleAdvShapeDataEdit = (shape) => {//path, poly
+  const handleAdvShapeDataEdit = (shape) => {
     //first: check for highlight(selection) to toggle off - get out of edit mode
     const currentSelectedSpans = Array.from(document.getElementsByClassName("bg-primary-subtle")) //should only be one unless something has gone wrong
     if(currentSelectedSpans.length > 0){
@@ -426,24 +428,24 @@ const removeHighlightedSpans = (currentSelectedSpans) => {//path, poly
       }
   }
 
-  const showEditArrows = ()=> {//path, poly
+  const showEditArrows = ()=> {
     const arrows = document.querySelectorAll("#shapeData > i");
     arrows.forEach(iElement => iElement.classList.replace("d-none", "d-inline"));
   }
   
-  const hideEditArrows = () => {//path, poly
+  const hideEditArrows = () => {
     const arrows = document.querySelectorAll("#shapeData > i");
     arrows.forEach(iElement => iElement.classList.replace("d-inline", "d-none"));
   }
 
-  const getNextSpanIndex = (index, arrayLength) => {//path, poly
+  const getNextSpanIndex = (index, arrayLength) => {
     if(arrayLength === 1) return -1
     if(index === 0) return index
-    //as if index <= arrayLength - 1
+    // the following line as if index <= arrayLength - 1
     return index - 1
   }
 
-  const handleAdvShapeProcessedDataDelete = (shape) => {//path, poly
+  const handleAdvShapeProcessedDataDelete = (shape) => {
     const processedDataIndex = Number(document.getElementsByClassName("bg-primary-subtle")[0]?.dataset.processeddataIndex)
     if(processedDataIndex === 0 && processedData.data.length > 1 && Object.keys(processedData.data[0])[0] === 'M'){ //don't delete that one; svg complains if it is missing
       //display a message to user?
@@ -486,14 +488,13 @@ const removeHighlightedSpans = (currentSelectedSpans) => {//path, poly
       }
     }else{
       setProcessedData({data: [], meta: {"bg-primary-subtle": -1}})
-      //setInputData({}) //clearing processed data should not empty inputdata - duh.
       setPath('')
       setPoly('')
       hideEditArrows();
     }
   }
 
-  const handleEditCoordRight = (shape) => {  // path, poly  
+  const handleEditCoordRight = (shape) => {    
     const processedDataIndex = Number(document.getElementsByClassName("bg-primary-subtle")[0]?.dataset.processeddataIndex)
     const shapeDataSpans = Array.from(document.querySelectorAll("#shapeData > span"))
     if (processedDataIndex < shapeDataSpans.length - 1){
@@ -512,7 +513,7 @@ const removeHighlightedSpans = (currentSelectedSpans) => {//path, poly
     }
   }
 
-  const handleEditCoordLeft = (shape) => {// path, poly
+  const handleEditCoordLeft = (shape) => {
     const processedDataIndex = Number(document.getElementsByClassName("bg-primary-subtle")[0]?.dataset.processeddataIndex)
     if (processedDataIndex >= 1){
       const shapeDataSpans = Array.from(document.querySelectorAll("#shapeData > span"))
@@ -546,7 +547,7 @@ const removeHighlightedSpans = (currentSelectedSpans) => {//path, poly
       </>
     : <></>;
 
-  const htmlForPath = (processedData) => {//path
+  const htmlForPath = (processedData) => {
     if(shape !== 'PATH'){return []}
     if(processedData?.data?.length === 0){return []}
     return processedData?.data?.map((object, index, array) => {
@@ -564,7 +565,7 @@ const removeHighlightedSpans = (currentSelectedSpans) => {//path, poly
 
   const pathHTML = htmlForPath(processedData)
 
-  const htmlForPoly = (processedData) => {//poly
+  const htmlForPoly = (processedData) => {
     if(!shape.includes('POLY')){return []}
     if(processedData?.data?.length === 0){return []}
     return processedData?.data?.map((object, index, array) => {
@@ -581,7 +582,7 @@ const removeHighlightedSpans = (currentSelectedSpans) => {//path, poly
 
   const polyHTML = htmlForPoly(processedData)
 
-  const handleRandomInput = (shapeName, command, parameters) => {//path, poly, basic
+  const handleRandomInput = (shapeName, command, parameters) => {
     const paramValues = parameters.reduce((params, object) => {
       params[object.parameter] = Math.floor(Math.random() * 379)
       return params
@@ -594,7 +595,7 @@ const removeHighlightedSpans = (currentSelectedSpans) => {//path, poly
     })
   }
 
-  const handleZCommand = () => {//path
+  const handleZCommand = () => {
     setProcessedData((previous) => {
       const updatedProcessedData = { ...previous }
       if(updatedProcessedData.data.length === 0) return updatedProcessedData
@@ -608,7 +609,7 @@ const removeHighlightedSpans = (currentSelectedSpans) => {//path, poly
     })
   }
 
-  const findClosePathCoordinates = (processedData) => {//path
+  const findClosePathCoordinates = (processedData) => {
     return processedData?.data?.findLast((entry) => {
       const command = Object.keys(entry)[0]
       if(command === 'M') {
@@ -623,143 +624,79 @@ const removeHighlightedSpans = (currentSelectedSpans) => {//path, poly
     return value.concat(current.join(': ').toUpperCase(), separator)
   }, '')
 
-const basicShapeInputsWithRandom = <>
+const basicShapeInputsWithRandom = basicShapeConfig[shape] && 
+  <div className="card" id={ shape.toLowerCase() }>
+    <div className="card-header">
+      <h6>
+        { shape.charAt(0)}{shape.slice(1).toLowerCase() }
+      </h6>
+    </div>
+    <div className="card-body">
       {basicShapeConfig[shape]?.parameters?.map(({ parameter, label }, index) => 
         <div key={ parameter + "-" + index }>
           <label>{ label }
-            <input type='number' min={ MIN } max={ MAX}  
-                  required={ true } //could come from data
-                  onChange={ event => handleAttributeChange(event, parameter, '', shape) }
-                  value={ inputData[shape.toLowerCase()]?.[parameter] ?? '' }
-                  placeholder={ `${MIN}-${MAX}` }
+            <input type='number' id={label}
+              min={ MIN } max={ MAX}  
+              required={ true }
+              onChange={ event => handleAttributeChange(event, parameter, '', shape) }
+              value={ inputData[shape.toLowerCase()]?.[parameter] ?? '' }
+              placeholder={ `${MIN}-${MAX}` }
             />
           </label>
         </div>
       )}
-      {basicShapeConfig[shape] && <button type='button' id={`${shape.toLowerCase()}-Random`} onClick={() => handleRandomInput(shape.toLowerCase(), '', basicShapeConfig[shape].parameters)}>Random</button>}
-    </>
+    </div>
+    <div className="card-footer">
+      {<button type='button' id={`${shape.toLowerCase()}-Random`} onClick={() => handleRandomInput(shape.toLowerCase(), '', basicShapeConfig[shape].parameters)}>Random</button>}
+    </div>
+  </div>
 
-  // DO: turn all below into components if/as able
   const advShapeInputs = advancedShapeConfig[shape]?.map(({ attribute, label, commands: pathCommands, parameters: polyParameters }, index) => {
     return (
-      <div key={`${attribute} ${label} ${index}`}>
+      <div key={`${attribute} ${label} ${index}`} id={shape.toLowerCase()}>
         <AdvShapeDetailSection 
-          attribute={attribute} 
-          label={label} 
-          sectionHTML={pathHTML || polyHTML} 
-          handleEditCoordLeft={handleEditCoordLeft} 
-          handleEditCoordRight={handleEditCoordRight} 
-          editDeleteIcons={editDeleteIcons}
-          shape={shape}
+          attribute = { attribute }
+          label = { label }
+          pathHTML = { pathHTML }
+          polyHTML = { polyHTML }
+          handleEditCoordLeft = { handleEditCoordLeft }
+          handleEditCoordRight = { handleEditCoordRight }
+          editDeleteIcons = { editDeleteIcons }
+          shape = { shape }
         />
-      {/* 
-        <section name={label} value={attribute}>
-          <h5>{label}</h5>
-          <p id='shapeData'>
-            {attribute}=
-            <i className="d-none bi bi-box-arrow-in-left" onClick={() => handleEditCoordLeft(shape.toLowerCase())}></i>
-            &apos;{pathHTML || polyHTML}&apos;
-            <i className="d-none bi bi-box-arrow-in-right" onClick={() => handleEditCoordRight(shape.toLowerCase())}></i>
-            {editDeleteIcons}
-          </p>
-        </section> */}
+        {pathCommands &&  
+        <PathCommandMapDetails
+          shape = { shape }
+          closePathCoordinates = { closePathCoordinates }
+          zCoords = { zCoords }
+          MIN = { MIN }
+          MAX = { MAX }
+          inputData = { inputData } 
+          pathCommands = { pathCommands }
+          handlers = {{
+            handleAttributeChange,
+            handleCheckedChange,
+            handleRandomInput,
+            addPathCoordinateData,
+            handleZCommand,
+            sortByAttributeOrder,
+            verifyArcFlags
+          }}
+        />}
 
-        {pathCommands && //Path
-          (
-            <div>
-              {/* { attribute, label, commands: pathCommands, parameters: polyParameters }, index*/}
-              <div className="container" id={attribute + index} key={label + "-" + index}>
-                {pathCommands.map(({command, name, parameters: pathParameters, flags}, index) => {
-                    return (
-                      <div className="card" key={command + "-" + name + "-" + index}>
-                        <div className="card-header">
-                          <h6>{name}</h6>
-                        </div>
-                        <div className="card-body" key={ `${shape}-${command}-${index}` }>
-                        {pathParameters?.map(({ parameter, label}, index) => (
-                          command === 'Z' ?
-                          //input for command Z
-                            <div key={ `${command}-${parameter}-${index}` }>
-                              <label>{ label }
-                                <span id={ `${parameter} ${command} ${shape}` }>: {closePathCoordinates?.[parameter] ?? 'Add another command first'}</span>
-                              </label>
-                            </div>
-                          :
-                          //input for commands M, L, H, V, C, S, Q, T AND A
-                          <div key={ `${command}-${parameter}-${index}` }>
-                              <label>{ label }
-                                <input id={ `${parameter} ${command} ${shape}` } 
-                                  min={ MIN } max={ MAX}
-                                  type='number'  
-                                  required={ false }
-                                  onChange={ event => handleAttributeChange(event, parameter, command, shape) }
-                                  value={ inputData[command]?.[parameter] ?? '' }
-                                  placeholder={ `${MIN}-${MAX}` }
-                                />
-                              </label>
-                            </div>
-                        ))}
-                        {flags?.map(({ flag, label }, index) =>{
-                          return (
-                            //input for A:FLAGS
-                            <div key={ `${command}-${flag}-${index}` }>
-                              <label >{label}
-                                <input type='checkbox'
-                                      id={ `${flag}-${command}` } //intentional: ID here uses dash instead of a space to avoid validateElements step
-                                      onChange={ event => handleCheckedChange(event, flag, command) }
-                                      checked={ inputData[command]?.[flag] ? true : false }
-                                /> 
-                              </label>
-                            </div>
-                          )}
-                          )
-                        }
-                        </div>
-                        <div className="card-footer">
-                          {command !== 'Z' ? 
-                          <div>
-                            <button type='button' id='pathRandom' onClick={() => handleRandomInput(shape.toLowerCase(), command, pathParameters)}>Random</button>
-                            <button type='button' id='commandsInput' onClick={() => addPathCoordinateData(command) }>Add {command} {inputData[command] ? Object.values(sortByAttributeOrder(verifyArcFlags(inputData[command] || {}, command))).join(", ") : ''}</button>
-                          </div>
-                          : 
-                          <div>
-                            <button type='button' id='Z-Command' onClick={() => handleZCommand()}>Add {command} </button> Returns to {zCoords}
-                          </div>
-                          }
-
-                        </div>
-                      </div>
-                    )
-                  })
-                }
-              </div>
-            </div>
-          )
-        }
-        {polyParameters && //Polyline/Polygon
-          (
-            <div>
-              <fieldset name='parametersForCommand' id=''>
-                {polyParameters.map(({ parameter, label }, index) => (
-                  <div key={ `${shape}-${parameter}-${index}` }>
-                    <label>{ label }
-                      <input id={ `${parameter} ${shape} ${shape}` } 
-                        min={ MIN } max={ MAX}
-                        type='number'
-                        onChange={ event => handleAttributeChange(event, parameter, '', shape) }
-                        value={ inputData[shape.toLowerCase()]?.[parameter] ?? '' }
-                        placeholder={ `${MIN}-${MAX}` }
-                      />
-                    </label>
-                    {`min ${MIN} - max ${MAX}`}
-                  </div>
-                ))}
-                <button type='button' id='polyRandom' onClick={() => handleRandomInput(shape.toLowerCase(), '', polyParameters)}>Random</button>
-                <button type='button' id='parametersInput' onClick={() => addPolyCoordinateData(shape)}>Add Coordinate {Object.values(inputData[shape.toLowerCase()] || {}).join(", ")}</button>
-              </fieldset>
-            </div>
-          )
-        }
+        {polyParameters &&
+        <PolyParametersMapDetails 
+          polyParameters = { polyParameters }
+          shape = { shape }
+          MIN = { MIN }
+          MAX = { MAX }
+          inputData = { inputData }
+          handlers = {{ 
+            handleAttributeChange,
+            handleRandomInput,
+            addPolyCoordinateData
+          }}
+        />}
       </div>
     )
   }
@@ -780,4 +717,3 @@ ShapeInputs.propTypes = {
 };
 
 export default ShapeInputs;
-
