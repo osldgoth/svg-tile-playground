@@ -10,8 +10,6 @@ const SVGTileWrapper = () => {
           setShapeName, 
           allSVGs, setAllSVGs, 
           setInputData, setProcessedData,
-          setPath,
-          setPoly,
           setBasic
         } = useContext(Context)
   
@@ -27,14 +25,10 @@ const SVGTileWrapper = () => {
     const shapeName = allSVGs[indexAsInt].shapeName
     const inputData = allSVGs[indexAsInt].basic ? {[shapeName]: allSVGs[indexAsInt].basic} : {}
     const processedData = allSVGs[indexAsInt].processedData
-    const path = allSVGs[indexAsInt].path 
-    const poly = allSVGs[indexAsInt].poly
     setShapeName(shapeName)
     //set inputs
     setInputData(inputData)
     setProcessedData(processedData)
-    setPath(path)
-    setPoly(poly)
     setBasic('')
     //then delete svg out of allsvgs
     setAllSVGs([...allSVGs.filter((_, i) => i !== indexAsInt)])
