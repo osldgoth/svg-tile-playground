@@ -2,8 +2,23 @@ import PropTypes from 'prop-types';
 import PathParametersMapDetails from './PathParametersMapDetails'
 import FlagMapDetails from './FlagMapDetails'
 
-const PathCommandMapDetails = ({pathCommands, shape, closePathCoordinates, inputData, MIN, MAX, zCoords, handlers}) => {
-  const renderPathCommands = pathCommands.map(({command, name, parameters: pathParameters, flags}, commandIndex) => { 
+const PathCommandMapDetails = ({pathCommands, shape, closePathCoordinates, inputData, processedData, MIN, MAX, zCoords, handlers}) => {
+  const renderPathCommands = pathCommands.map(({command, name, parameters: pathParameters, flags}, commandIndex) => {
+    const editIndex = processedData["bg-primary-subtle"]
+    const addCommandDataText = inputData[command] 
+    ? 
+    Object.values(handlers.sortByAttributeOrder(handlers.verifyArcFlags(inputData[command] || {}, command))).join(", ") 
+    :
+    ''
+
+    const commandInputButtonText = editIndex >= 0 && command === Object.keys(processedData.data[editIndex] || {})[0] 
+    ?
+    `Replace at index ${editIndex}: ${command} ${addCommandDataText}`
+    :
+    `Add ${command} ${addCommandDataText}`
+
+    const randomParameters = command === 'A' ? pathParameters.concat(flags) : pathParameters
+    
     return (
       <div className="card" id={`${command}`} key={`${command}-${name}-${commandIndex}`}>
         <div className="card-header">
@@ -22,12 +37,13 @@ const PathCommandMapDetails = ({pathCommands, shape, closePathCoordinates, input
             inputData = { inputData }
             handleAttributeChange = { handlers.handleAttributeChange }
             />          
+          {command === 'A' && // integrate into paramaters
           <FlagMapDetails
             flags = { flags }
             command = { command }
             inputData = { inputData }
             handleCheckedChange = { handlers.handleCheckedChange }
-          />
+          />}
         </div>
         <div className="card-footer">
           {command === 'Z' ?
@@ -36,9 +52,9 @@ const PathCommandMapDetails = ({pathCommands, shape, closePathCoordinates, input
           </div>
           : 
           <div>
-            <button type='button' id='pathRandom' onClick={() => handlers.handleRandomInput(shape.toLowerCase(), command, pathParameters)}>Random</button>
-            <button type='button' id='commandsInput' onClick={() => handlers.addPathCoordinateData(command) }>
-              Add {command} {inputData[command] ? Object.values(handlers.sortByAttributeOrder(handlers.verifyArcFlags(inputData[command] || {}, command))).join(", ") : ''}
+            <button type='button' id='pathRandom' onClick={() => handlers.handleRandomInput(shape.toLowerCase(), command, randomParameters)}>Random</button>
+            <button type='button' id='commandInput' onClick={() => handlers.addPathCoordinateData(command, editIndex) }>
+            {commandInputButtonText}
             </button>
           </div>
           }
@@ -55,6 +71,7 @@ PathCommandMapDetails.propTypes = {
   shape: PropTypes.string,
   closePathCoordinates: PropTypes.object,
   inputData: PropTypes.object,
+  processedData: PropTypes.object,
   MIN: PropTypes.number,
   MAX: PropTypes.number,
   zCoords: PropTypes.string,

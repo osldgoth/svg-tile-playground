@@ -7,9 +7,7 @@ const SVGContextProvider = (props) => {
   const [shapeName, setShapeName] = useState("")
   const [allSVGs, setAllSVGs] = useState([])
   const [inputData, setInputData] = useState({})
-  const [processedData, setProcessedData] = useState( {data: [], meta: {"bg-primary-subtle": -1}} )
-  const [path, setPath] = useState('')
-  const [poly, setPoly] = useState('')
+  const [processedData, setProcessedData] = useState( {data: [], "bg-primary-subtle": -1, SVGPath: '', SVGPoly: '' })
   const [basic, setBasic] = useState('')
   const [defaultShape, setDefaultShape] = useState({})
 
@@ -20,8 +18,6 @@ const SVGContextProvider = (props) => {
         allSVGs, setAllSVGs,
         inputData, setInputData,
         processedData, setProcessedData,
-        path, setPath,
-        poly, setPoly,
         basic, setBasic,
         defaultShape, setDefaultShape
       }

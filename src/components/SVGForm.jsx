@@ -9,8 +9,6 @@ const SVGForm = () => {
           allSVGs, setAllSVGs,
           inputData, setInputData,
           processedData, setProcessedData,
-          path, setPath,
-          poly, setPoly,
           basic, setBasic
         } = useContext(Context)  
   const shapes = ["Rectangle", "Circle", 'Ellipse', 'Line', 'Polyline', 'Polygon', 'Path']
@@ -27,16 +25,14 @@ const SVGForm = () => {
 
   const handleFormSubmission = (event) => {
     event.preventDefault()
-    const basic = populateBasic(inputData, shapeName)
+    const basic = populateBasic(inputData, shapeName.toLowerCase())
     setBasic(basic)
-    setAllSVGs([{shapeName, processedData, path, poly, basic}, ...allSVGs])
+    setAllSVGs([{shapeName, processedData, basic}, ...allSVGs])
       //reset state to defaults
     setShapeName("")
 
     setInputData({})
-    setProcessedData({data: [], meta: {"bg-primary-subtle": -1}})
-    setPath('')
-    setPoly('')
+    setProcessedData({data: [], "bg-primary-subtle": -1, SVGPath: '', SVGPoly: '' })
     setBasic('')
   }
 
@@ -44,9 +40,7 @@ const SVGForm = () => {
     setShapeName(event.target.value)
 
     setInputData({})
-    setProcessedData({data: [], meta: {"bg-primary-subtle": -1}})
-    setPath('')
-    setPoly('')
+    setProcessedData({data: [], "bg-primary-subtle": -1, SVGPath: '', SVGPoly: '' })
     setBasic('')
     //need a way to call hide arrows
   }
@@ -64,7 +58,7 @@ const SVGForm = () => {
       </select>
 
       <ShapeInputs shape={shapeName.toUpperCase()} />
-      <SVGTile index={-1} svgData={{shapeName, processedData, path, poly, basic}}/>
+      <SVGTile index={-1} svgData={{shapeName, processedData, basic}}/>
       {shapeName &&
         <>
           <button type='button'>Add this {shapeName} to current svg</button>

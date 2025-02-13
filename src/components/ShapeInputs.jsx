@@ -194,9 +194,7 @@ const advancedShapeConfig = {
 const ShapeInputs = ({ shape }) => {
   const {
           inputData, setInputData, 
-          processedData, setProcessedData, 
-          setPath,
-          setPoly,
+          processedData, setProcessedData,
           setDefaultShape
         } = useContext(Context)
 
@@ -265,31 +263,28 @@ const ShapeInputs = ({ shape }) => {
     }, '')
   }
 
-  const createPolyFromObject = (incomingData) => {
-    return Object.values(incomingData).join(', ')
-  }
-
   const createPolyFromArrayOfObjects =  (incomingData) => {
     return incomingData.reduce((poly, data) => {
-      return poly.concat(" ", createPolyFromObject(data))
+      return poly.concat(" ", Object.values(data).join(', '))
     }, '').trim();
   }
 
-  const addPolyCoordinateData  = (shape) => {
+  const addPolyCoordinateData  = (shape, editIndex) => {
     shape = shape.toLowerCase()
     if(validateElements(shape).includes(false)){return} //at least one input is invalid - stop
+    if(!inputData[shape]) {return}
 
     const sortedInputData = sortByAttributeOrder(inputData[shape])
 
-    const polyData = createPolyFromObject(sortedInputData)
     setProcessedData((previous) => {
       const updatedProcessedData = { ...previous }
-      updatedProcessedData.data.push(sortedInputData)
+      if(editIndex >= 0){
+        updatedProcessedData.data.splice(editIndex, 1, sortedInputData) //at index, delete one, replace with updated info
+      }else{
+        updatedProcessedData.data.push(sortedInputData)
+      }
+      updatedProcessedData.SVGPoly = createPolyFromArrayOfObjects(updatedProcessedData.data)
       return updatedProcessedData
-    })
-
-    setPoly((previousPoly) => {
-      return `${previousPoly} ${polyData}`.trim()
     })
 
     setInputData((previousInputdata) => {
@@ -300,12 +295,11 @@ const ShapeInputs = ({ shape }) => {
     )
   }
 
-  const addPathCoordinateData = (command) => {
+  const addPathCoordinateData = (command, editIndex) => {
     if(validateElements(command).includes(false)){return} //at least one input is invalid - stop 
     if(!inputData[command]) {return}
 
-    const flagVerifiedInput = verifyArcFlags(inputData[command], command)
-    const sortedInputData = sortByAttributeOrder(flagVerifiedInput)
+    const sortedInputData = sortByAttributeOrder(verifyArcFlags(inputData[command], command))
 
     let updatedInputData = [{[command]: sortedInputData}];
 
@@ -314,17 +308,17 @@ const ShapeInputs = ({ shape }) => {
         updatedInputData.unshift({M:  { y: 0, x: 0 }})
       }
 
-    const pathData = createPathFromArrayOfObjects(updatedInputData)
-
     setProcessedData((previous) => {
       const updatedProcessedData = { ...previous }
-      updatedProcessedData?.data?.push(...updatedInputData)
+      if(editIndex >= 0){
+        updatedProcessedData.data.splice(editIndex, 1, ...updatedInputData) //at index, delete one, replace with updated info
+        //exit edit mode
+      }else{
+        updatedProcessedData.data.push(...updatedInputData)
+      }
+      updatedProcessedData.SVGPath = createPathFromArrayOfObjects(updatedProcessedData.data)
       return updatedProcessedData
     });
-
-    setPath((previousPath) => {
-      return `${previousPath} ${pathData}`.trim()
-    })
 
     setInputData((previousInputdata) => {
       const updatedInputData = { ...previousInputdata}
@@ -404,28 +398,36 @@ const removeHighlightedSpans = (currentSelectedSpans) => {
       removeHighlightedSpans(currentSelectedSpans)
       hideEditArrows()
       setInputData({}) //this is where I'd reload any saved inputdata from overwriting in loadDataIntoInputs
+      setProcessedData((previousProcessedData) => {
+        const updatedProcessedData = { ...previousProcessedData }
+        updatedProcessedData["bg-primary-subtle"] = -1
+        return updatedProcessedData
+      })
     } else { //go into edit mode
       //get spans
       const shapeDataSpans = Array.from(document.querySelectorAll("#shapeData > span"))
       //no spans if processedData is empty but I'd never get here if the edit button is hidden as is the case when processedData is empty
       const lastShapeDataSpan = shapeDataSpans[shapeDataSpans.length - 1]
+      const lastShapeDataSpanIndex = Number(lastShapeDataSpan.dataset.processeddataIndex)
       lastShapeDataSpan && lastShapeDataSpan.classList.toggle("bg-primary-subtle")
+
       showEditArrows(); //show arrows only if spans > 1?
       //load span data into inputs
       if(shape === 'path'){
         setInputData({
-          ...processedData.data[lastShapeDataSpan.dataset.processeddataIndex]
+          ...processedData.data[lastShapeDataSpanIndex]
         })
       }else{
         setInputData({
-          [shape]: processedData.data[lastShapeDataSpan.dataset.processeddataIndex]
+          [shape]: processedData.data[lastShapeDataSpanIndex]
         })
       }
-      //remove from processedData or edit 'in place'
-      //to edit 'in place' I'd need to write a new function to move inputdata to processed or use the index via addPolyCoordinateData or addPathCoordinateData
-      //I could write addPolyCoordinateData and addPathCoordinateData to find the first empty spot (or the end of the array)
-      //I'll use the index and replace there
-      }
+      setProcessedData((previousProcessedData) => {
+        const updatedProcessedData = { ...previousProcessedData }
+        updatedProcessedData["bg-primary-subtle"] = lastShapeDataSpanIndex
+        return updatedProcessedData
+      })
+    }
   }
 
   const showEditArrows = ()=> {
@@ -453,43 +455,38 @@ const removeHighlightedSpans = (currentSelectedSpans) => {
     }
     if(processedDataIndex >= 0){
       const nextSpanToHighlight = getNextSpanIndex(processedDataIndex, processedData.data.length)
-      const removeData = processedData.data?.slice(processedDataIndex, processedDataIndex + 1)
 
       setProcessedData((previousProcessedData) => {
         const updatedProcessedData = { ...previousProcessedData }
         updatedProcessedData?.data?.splice(processedDataIndex, 1) //delete 1 item at index
-        updatedProcessedData.meta["bg-primary-subtle"] = nextSpanToHighlight
+        updatedProcessedData["bg-primary-subtle"] = nextSpanToHighlight
+        
+        if(shape === 'path'){
+          updatedProcessedData.SVGPath = createPathFromArrayOfObjects(updatedProcessedData.data)
+        }
+        if(shape.includes('poly')){
+          updatedProcessedData.SVGPoly = createPolyFromArrayOfObjects(updatedProcessedData.data)
+        }
+        
         return updatedProcessedData
       })
-      
-      if(shape === 'path') {
-        const removeFromPath = createPathFromArrayOfObjects(removeData)
-        setPath((previous) => {
-          const previousPath = previous.slice()
-          const indexOfRemove = previousPath.indexOf(removeFromPath) //ensure not -1?
-          const newPathP1 = previousPath.substring(0, indexOfRemove - 1)
-          const newPathp2 = previousPath.substring(indexOfRemove + removeFromPath.length) //iOR + rFP valid?
-          return newPathP1.concat(newPathp2)
-        })
-      }
-      
-      if(shape.includes('poly')){
-        const removeFromPoly = createPolyFromArrayOfObjects(removeData)
-        setPoly((previous) => {
-          const previousPoly = previous.slice()
-          const indexOfRemove = previousPoly.indexOf(removeFromPoly)
-          const newPolyP1 = previousPoly.substring(0, indexOfRemove - 1)
-          const newPolyp2 = previousPoly.substring(indexOfRemove + removeFromPoly.length)
-          return newPolyP1.concat(newPolyp2)
-        })
-      }
+
       if(nextSpanToHighlight === -1){
         hideEditArrows();
       }
+      if(nextSpanToHighlight >= 0){
+        if(shape === 'path'){
+          setInputData({
+            ...processedData.data[nextSpanToHighlight]
+          })
+        }else{
+          setInputData({
+            [shape]: processedData.data[nextSpanToHighlight]
+          })
+        }
+      }
     }else{
-      setProcessedData({data: [], meta: {"bg-primary-subtle": -1}})
-      setPath('')
-      setPoly('')
+      setProcessedData({data: [], "bg-primary-subtle": -1, SVGPath: '', SVGPoly: '' })
       hideEditArrows();
     }
   }
@@ -510,6 +507,11 @@ const removeHighlightedSpans = (currentSelectedSpans) => {
           [shape]: processedData.data[processedDataIndex + 1]
         })
       }
+      setProcessedData((previousProcessedData) => {
+        const updatedProcessedData = { ...previousProcessedData }
+        updatedProcessedData["bg-primary-subtle"] = processedDataIndex + 1
+        return updatedProcessedData
+      })
     }
   }
 
@@ -529,6 +531,11 @@ const removeHighlightedSpans = (currentSelectedSpans) => {
           [shape]: processedData.data[processedDataIndex - 1]
         })
       }
+      setProcessedData((previousProcessedData) => {
+        const updatedProcessedData = { ...previousProcessedData }
+        updatedProcessedData["bg-primary-subtle"] = processedDataIndex - 1
+        return updatedProcessedData
+      })
     }
   }
 /* data-index={index} */
@@ -547,44 +554,53 @@ const removeHighlightedSpans = (currentSelectedSpans) => {
       </>
     : <></>;
 
-  const htmlForPath = (processedData) => {
+  const htmlForPath = (shape, data) => {
     if(shape !== 'PATH'){return []}
-    if(processedData?.data?.length === 0){return []}
-    return processedData?.data?.map((object, index, array) => {
-      const highlight = processedData.meta?.["bg-primary-subtle"] === index ? "bg-primary-subtle" : ''
+    if(data?.length === 0){return []}
+    return data?.map((object, index, array) => {
+      const highlight = processedData["bg-primary-subtle"] === index ? "bg-primary-subtle" : ''
       const keyCommand = Object.keys(object)[0]
       const values = Object.values(object[keyCommand] || {}).join(' ')
       const space = array.length - 1 === index ? '' : ' '
+      let spanText = `${keyCommand} ${values}${space}`
+      if(keyCommand === "Z"){
+        spanText = spanText.trim()
+      }
       return <span key={`${keyCommand}-${values}-${index}`} id={`${values} ${index}`}
                    className={highlight}
                    data-processeddata-index={index}>
-                    {keyCommand} {values}{space}
-            </span>
+                   {spanText}
+              </span>
     })
   }
 
-  const pathHTML = htmlForPath(processedData)
+  const pathHTML = htmlForPath(shape, processedData.data)
 
-  const htmlForPoly = (processedData) => {
+  const htmlForPoly = (shape, data) => {
     if(!shape.includes('POLY')){return []}
-    if(processedData?.data?.length === 0){return []}
-    return processedData?.data?.map((object, index, array) => {
-      const highlight = processedData.meta?.["bg-primary-subtle"] === index ? "bg-primary-subtle" : ''
+    if(data?.length === 0){return []}
+    return data?.map((object, index, array) => {
+      const highlight = processedData["bg-primary-subtle"] === index ? "bg-primary-subtle" : ''
       const values = Object.values(object).join(', ')
       const space = array.length - 1 === index ? '' : ' '
       return <span key={`${values} ${index}`} id={`${values} ${index}`} 
                    className={highlight} 
                    data-processeddata-index={index}>
-                    {values}{space}
+                   {values}{space}
             </span>
     })
   }
 
-  const polyHTML = htmlForPoly(processedData)
+  const polyHTML = htmlForPoly(shape, processedData.data)
 
   const handleRandomInput = (shapeName, command, parameters) => {
     const paramValues = parameters.reduce((params, object) => {
-      params[object.parameter] = Math.floor(Math.random() * 379)
+      if(object.parameter){
+      params[object.parameter] = Math.floor(Math.random() * (MAX + 1))
+      }
+      else{//if object.flag
+        params[object.flag] = Math.round(Math.random())
+      }
       return params
     }, {})
     
@@ -600,13 +616,9 @@ const removeHighlightedSpans = (currentSelectedSpans) => {
       const updatedProcessedData = { ...previous }
       if(updatedProcessedData.data.length === 0) return updatedProcessedData
       updatedProcessedData.data.push({'Z': {}})
+      updatedProcessedData.SVGPath = createPathFromArrayOfObjects(updatedProcessedData.data)
       return updatedProcessedData
     });
-
-    setPath((previousPath) => {
-      if(previousPath.length === 0) return previousPath
-      return `${previousPath} Z`.trim()
-    })
   }
 
   const findClosePathCoordinates = (processedData) => {
@@ -617,6 +629,8 @@ const removeHighlightedSpans = (currentSelectedSpans) => {
       }
     })?.['M'] || {}
   }
+
+
 
   const closePathCoordinates = findClosePathCoordinates(processedData)
   const zCoords = Object.entries(closePathCoordinates).reduce((value, current, index, array) => {
@@ -672,6 +686,7 @@ const basicShapeInputsWithRandom = basicShapeConfig[shape] &&
           MIN = { MIN }
           MAX = { MAX }
           inputData = { inputData } 
+          processedData = { processedData }
           pathCommands = { pathCommands }
           handlers = {{
             handleAttributeChange,
@@ -691,10 +706,12 @@ const basicShapeInputsWithRandom = basicShapeConfig[shape] &&
           MIN = { MIN }
           MAX = { MAX }
           inputData = { inputData }
+          processedData = { processedData }
           handlers = {{ 
             handleAttributeChange,
             handleRandomInput,
-            addPolyCoordinateData
+            addPolyCoordinateData,
+            sortByAttributeOrder
           }}
         />}
       </div>

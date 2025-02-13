@@ -3,17 +3,17 @@ import React, { useContext } from 'react'
 import { Context } from "./SVGContext"
 
 const SVGTile = ({index, svgData, handleDelete, handleEdit}) => {
-  const {path, poly, inputData, defaultShape} = useContext(Context)
+  const {inputData, defaultShape} = useContext(Context)
   const shapeName = svgData.shapeName
   const shapeNameLowerCase = shapeName.toLowerCase()
   let createdShape = null;
   const getShapeData = () => {
     if(shapeName === "Path") {
-      const pathOrFallback = path || svgData.path
+      const pathOrFallback = /* SVGPath ||  */svgData.processedData.SVGPath
       return pathOrFallback ? {d: pathOrFallback} : {}
     }
     if(shapeName.includes('Poly')) {
-      const polyOrFallback = poly || svgData.poly
+      const polyOrFallback = /* SVGPoly ||  */svgData.processedData.SVGPoly
       return polyOrFallback ? {points: polyOrFallback} : {} 
     }
     return svgData.basic || inputData[shapeName.toLowerCase()] || {} 
