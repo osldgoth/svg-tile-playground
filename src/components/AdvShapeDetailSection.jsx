@@ -1,10 +1,10 @@
 import PropTypes from 'prop-types';
 
-const AdvShapeDetailSection = ({attribute, label, pathHTML, polyHTML, handleEditCoordLeft, handleEditCoordRight, editDeleteIcons, shape}) => {
+const AdvShapeDetailSection = ({attribute, label, pathHTML, polyHTML, handleEditCoordLeft, handleEditCoordRight, editDeleteButtons, shape}) => {
   return (
   <section name={label} value={attribute}>
     <h5>{label}</h5>
-    <p id='shapeData'>
+    <p id='shapeData' >
       {attribute}=
       <i className="d-none bi bi-box-arrow-in-left" onClick={() => handleEditCoordLeft(shape.toLowerCase())}></i>
       &apos;
@@ -12,7 +12,7 @@ const AdvShapeDetailSection = ({attribute, label, pathHTML, polyHTML, handleEdit
       { polyHTML.length ? polyHTML: null }
       &apos;
       <i className="d-none bi bi-box-arrow-in-right" onClick={() => handleEditCoordRight(shape.toLowerCase())}></i>
-      {editDeleteIcons}
+      {editDeleteButtons}
     </p>
   </section>
   )
@@ -25,7 +25,7 @@ AdvShapeDetailSection.propTypes = {
   polyHTML: PropTypes.array,
   handleEditCoordLeft: PropTypes.func,
   handleEditCoordRight: PropTypes.func,
-  editDeleteIcons: PropTypes.element,
+  editDeleteButtons: PropTypes.element,
   shape: PropTypes.string
 }
 

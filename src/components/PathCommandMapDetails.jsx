@@ -5,13 +5,14 @@ import FlagMapDetails from './FlagMapDetails'
 const PathCommandMapDetails = ({pathCommands, shape, closePathCoordinates, inputData, processedData, MIN, MAX, zCoords, handlers}) => {
   const renderPathCommands = pathCommands.map(({command, name, parameters: pathParameters, flags}, commandIndex) => {
     const editIndex = processedData["bg-primary-subtle"]
+
     const addCommandDataText = inputData[command] 
     ? 
     Object.values(handlers.sortByAttributeOrder(handlers.verifyArcFlags(inputData[command] || {}, command))).join(", ") 
     :
     ''
-
-    const commandInputButtonText = editIndex >= 0 && command === Object.keys(processedData.data[editIndex] || {})[0] 
+    
+    const commandInputButtonText = editIndex > 0 
     ?
     `Replace at index ${editIndex}: ${command} ${addCommandDataText}`
     :
@@ -20,7 +21,7 @@ const PathCommandMapDetails = ({pathCommands, shape, closePathCoordinates, input
     const randomParameters = command === 'A' ? pathParameters.concat(flags) : pathParameters
     
     return (
-      <div className="card" id={`${command}`} key={`${command}-${name}-${commandIndex}`}>
+      <div className="card col-12 col-sm-8 col-md-6 col-lg-4 col-xl-3" id={`${command}`} key={`${command}-${name}-${commandIndex}`} >
         <div className="card-header">
           <h6>
             {name}
