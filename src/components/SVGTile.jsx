@@ -1,25 +1,19 @@
 import PropTypes from 'prop-types';
 import React, { useContext } from 'react'
 import { Context } from "./SVGContext"
+import { handleEdit, handleDelete, getShapeData } from './SVGTileUtils.js'
 
-const SVGTile = ({index, svgData, handleDelete, handleEdit}) => {
-  const {inputData, defaultShape} = useContext(Context)
+const SVGTile = ({index, svgData}) => {
+  const { inputData, defaultShape, setShapeName,
+    allSVGs, setAllSVGs,
+    setInputData, setProcessedData,
+    setBasic } = useContext(Context)
+
   const shapeName = svgData.shapeName
   const shapeNameLowerCase = shapeName.toLowerCase()
   let createdShape = null;
-  const getShapeData = () => {
-    if(shapeName === "Path") {
-      const pathOrFallback = /* SVGPath ||  */svgData.processedData.SVGPath
-      return pathOrFallback ? {d: pathOrFallback} : {}
-    }
-    if(shapeName.includes('Poly')) {
-      const polyOrFallback = /* SVGPoly ||  */svgData.processedData.SVGPoly
-      return polyOrFallback ? {points: polyOrFallback} : {} 
-    }
-    return svgData.basic || inputData[shapeName.toLowerCase()] || {} 
-  }
 
-  const shapeData = getShapeData()
+  const shapeData = getShapeData(shapeName, inputData, svgData )
   const finalData = Object.keys(shapeData).length ? shapeData : defaultShape
 
   if (shapeNameLowerCase.trim() !== '') { // in the very first case when the page is first loaded (or reloaded)
@@ -45,16 +39,18 @@ const SVGTile = ({index, svgData, handleDelete, handleEdit}) => {
   )
 
   return (
-    <div className="card" data-allsvgs-index={index}>
-      <div className="card-header">
-        <h2>{shapeName}</h2>
-        {handleDelete ? <i className="bi bi-pencil-square" data-index={index} onClick={handleEdit}></i> : <></>}
-        {handleEdit ? <i className="bi bi-x-octagon" data-index={index} onClick={handleDelete}></i> : <></>}
+    <section name={`${shapeName}-${index}`}>
+      <div className="card" data-allsvgs-index={index}>
+        <div className="card-header">
+          <h2>{shapeName}</h2>
+          {index >= 0 ? <i className="bi bi-pencil-square" data-index={index} onClick={ (event) => handleEdit(event, setAllSVGs, allSVGs, setShapeName, setInputData, setProcessedData, setBasic)}></i> : <></>}
+          {index >= 0 ? <i className="bi bi-x-octagon" data-index={index} onClick={ (event) => handleDelete(event, setAllSVGs)}></i> : <></>}
+        </div>
+        <div className="card-body" style={{margin: 'auto'}}>
+          {currentsvg}
+        </div>
       </div>
-      <div className="card-body">
-        {currentsvg}
-      </div>
-    </div>
+      </section>
   );
 }
 
