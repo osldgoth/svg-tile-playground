@@ -42,7 +42,7 @@ const SVGForm = () => {
     setInputData({})
     setProcessedData({data: [], "bg-primary-subtle": -1, SVGPath: '', SVGPoly: '' })
     setBasic('')
-    //need a way to call hide arrows
+    //need a way to call hide arrows?
   }
   
   return (
@@ -61,7 +61,7 @@ const SVGForm = () => {
       <SVGTile index={-1} svgData={{shapeName, processedData, basic}}/>
       {shapeName &&
         <>
-          <button type='button'>Add this {shapeName} to current svg</button>
+          {/* <button type='button'>Add this {shapeName} to current svg</button> // Post Launch feature */ } 
           <button type='submit' className='submit-svg-form my-3'>Save SVG</button>
         </>
       }
