@@ -1,3 +1,6 @@
-.App {
-  text-align: center;
+.btn-xs {
+  font-size: 10px !important; 
+  padding: 1px 1px !important; 
+  margin: 1px 1px !important; 
+  width: 38px !important
 }
