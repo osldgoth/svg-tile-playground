@@ -1,4 +1,5 @@
 import { useContext, useEffect} from 'react';
+import { ToastContainer, toast } from 'react-toastify'
 import { Context } from './SVGContext';
 import PropTypes from 'prop-types';
 import AdvShapeDetailSection from './AdvShapeDetailSection';
@@ -55,18 +56,18 @@ const advancedShapeConfig = {
         { parameter: 'x', label: "X Coordinate" },
         { parameter: 'y', label: "Y Coordinate" }
       ],
-      defaultShape: {points: '60, 110 65, 120 70, 115 75, 130 80, 125 85, 140 90, 135 95, 150 100, 145'}
+      defaultShape: {points: '100, 100 125, 150 150, 125 175, 200 200, 175 225, 250 250, 225 275, 300 300, 275'}
     }
   ],
   POLYGON: [
-    { 
+    {
       attribute: "points",
       label: "A list of points.",
       parameters: [
         { parameter: 'x', label: "X Coordinate" },
         { parameter: 'y', label: "Y Coordinate" }
       ],
-      defaultShape: {points: '50, 160 55, 180 70, 180 60, 190 65, 205 50, 195 35, 205 40, 190 30, 180 45, 180'}
+      defaultShape: {points: '200, 75 225, 175 300, 175 250, 225 275, 300 200, 250 125, 300 150, 225 100, 175 175, 175'}
     }
   ],
   PATH: [
@@ -310,7 +311,7 @@ const ShapeInputs = ({ shape }) => {
 
     setProcessedData((previous) => {
       const updatedProcessedData = { ...previous }
-      if(editIndex >= 0){
+      if(editIndex > 0){ //TODO
         updatedProcessedData.data.splice(editIndex, 1, ...updatedInputData) //at index, delete one, replace with updated info
         //exit edit mode
       }else{
@@ -450,7 +451,9 @@ const removeHighlightedSpans = (currentSelectedSpans) => {
   const handleAdvShapeProcessedDataDelete = (shape) => {
     const processedDataIndex = Number(document.getElementsByClassName("bg-primary-subtle")[0]?.dataset.processeddataIndex)
     if(processedDataIndex === 0 && processedData.data.length > 1 && Object.keys(processedData.data[0])[0] === 'M'){ //don't delete that one; svg complains if it is missing
-      //display a message to user?
+      toast.error("SVG needs this; won't delete. Try removing other Commands first, exit edit mode to delete all, or edit this command instead.", {
+        toastId: `${shape}-${Object.keys(processedData.data[0])[0]}-${processedDataIndex}`
+    })
       return
     }
     if(processedDataIndex >= 0){
@@ -538,21 +541,15 @@ const removeHighlightedSpans = (currentSelectedSpans) => {
       })
     }
   }
-/* data-index={index} */
-  const editDeleteIcons = processedData?.data?.length > 0
-    ? <>
-        {/* <div className='tooltip'> {/*https://www.w3schools.com/css/css_tooltip.asp */}
-        {/*  <span className='tooltipText'>Edit</span> */}
-        {/* todo: on mobile/small screens switch to buttons&text instead of the below icons ie: something larger/easier to hit */}
-          <i className="bi bi-pencil-square" onClick={() => handleAdvShapeDataEdit(shape.toLowerCase())}></i>
-        {/* </div> */}
 
-        {/* <div className='tooltip'>*/}
-        {/*  <span className='tooltipText'>Edit</span> */}
-          <i className="bi bi-x-octagon" onClick={() => handleAdvShapeProcessedDataDelete(shape.toLowerCase())}></i>
-        {/* </div> */}
-      </>
-    : <></>;
+  const editDeleteButtons = processedData?.data?.length > 0
+    ? 
+    <>
+      <button type='button' className='btn btn-secondary btn-xs' onClick={() => handleAdvShapeDataEdit(shape.toLowerCase())}>Edit</button>
+      <button type='button' className='btn btn-secondary btn-xs' onClick={() => handleAdvShapeProcessedDataDelete(shape.toLowerCase())}>Delete</button>
+    </>
+    :
+    <></>;
 
   const htmlForPath = (shape, data) => {
     if(shape !== 'PATH'){return []}
@@ -630,8 +627,6 @@ const removeHighlightedSpans = (currentSelectedSpans) => {
     })?.['M'] || {}
   }
 
-
-
   const closePathCoordinates = findClosePathCoordinates(processedData)
   const zCoords = Object.entries(closePathCoordinates).reduce((value, current, index, array) => {
     const separator = array.length - 1 === index ? '' : ', '
@@ -652,7 +647,7 @@ const basicShapeInputsWithRandom = basicShapeConfig[shape] &&
             <input type='number' id={label}
               min={ MIN } max={ MAX}  
               required={ true }
-              onChange={ event => handleAttributeChange(event, parameter, '', shape) }
+              onChange={ (event) => handleAttributeChange(event, parameter, '', shape) }
               value={ inputData[shape.toLowerCase()]?.[parameter] ?? '' }
               placeholder={ `${MIN}-${MAX}` }
             />
@@ -675,29 +670,36 @@ const basicShapeInputsWithRandom = basicShapeConfig[shape] &&
           polyHTML = { polyHTML }
           handleEditCoordLeft = { handleEditCoordLeft }
           handleEditCoordRight = { handleEditCoordRight }
-          editDeleteIcons = { editDeleteIcons }
+          editDeleteButtons = { editDeleteButtons }
           shape = { shape }
         />
         {pathCommands &&  
-        <PathCommandMapDetails
-          shape = { shape }
-          closePathCoordinates = { closePathCoordinates }
-          zCoords = { zCoords }
-          MIN = { MIN }
-          MAX = { MAX }
-          inputData = { inputData } 
-          processedData = { processedData }
-          pathCommands = { pathCommands }
-          handlers = {{
-            handleAttributeChange,
-            handleCheckedChange,
-            handleRandomInput,
-            addPathCoordinateData,
-            handleZCommand,
-            sortByAttributeOrder,
-            verifyArcFlags
-          }}
-        />}
+        <section name='Commands'>
+          <div className='container p-0 mw-100'>
+            <div className='row g-0 justify-content-evenly row-cols-auto'>
+              <PathCommandMapDetails
+                shape = { shape }
+                closePathCoordinates = { closePathCoordinates }
+                zCoords = { zCoords }
+                MIN = { MIN }
+                MAX = { MAX }
+                inputData = { inputData } 
+                processedData = { processedData }
+                pathCommands = { pathCommands }
+                handlers = {{
+                  handleAttributeChange,
+                  handleCheckedChange,
+                  handleRandomInput,
+                  addPathCoordinateData,
+                  handleZCommand,
+                  sortByAttributeOrder,
+                  verifyArcFlags
+                }}
+              />
+            </div>
+          </div>
+        </section>
+        }
 
         {polyParameters &&
         <PolyParametersMapDetails 
@@ -724,6 +726,12 @@ const basicShapeInputsWithRandom = basicShapeConfig[shape] &&
   };
 
   return <>
+    <ToastContainer
+      hideProgressBar={false}
+      closeOnClick={true}
+      draggable
+      theme="dark"
+    />
     {basicShapeInputsWithRandom}
     {advShapeInputs}
   </>;
