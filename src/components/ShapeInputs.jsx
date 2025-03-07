@@ -208,6 +208,17 @@ const ShapeInputs = ({ shape }) => {
     })
   }, [setDefaultShape, shape])
 
+  const CustomToastNoDelete = () => (
+    <div>
+      <p>SVG needs this; Won&apos;t delete.</p>
+      <ul>
+        <li>Remove other Commands first</li>
+        <li>Exit edit mode to delete all</li>
+        <li>Edit this command instead.</li>
+      </ul>
+    </div>
+  )
+
   const validateElements = (command) => {
     const validity = []
     //require input on shape path via non-submit buttons
@@ -224,6 +235,8 @@ const ShapeInputs = ({ shape }) => {
       const invalidElement = inputElements[validity.indexOf(false)]
       if(invalidElement){
         invalidElement.reportValidity()
+        const labelText = invalidElement?.labels[0]?.innerText || 'Input'
+        toast.error(`${labelText} needs to be filled!`)
       }
       inputElements.forEach(element => {
         element.removeAttribute('required')
@@ -451,7 +464,7 @@ const removeHighlightedSpans = (currentSelectedSpans) => {
   const handleAdvShapeProcessedDataDelete = (shape) => {
     const processedDataIndex = Number(document.getElementsByClassName("bg-primary-subtle")[0]?.dataset.processeddataIndex)
     if(processedDataIndex === 0 && processedData.data.length > 1 && Object.keys(processedData.data[0])[0] === 'M'){ //don't delete that one; svg complains if it is missing
-      toast.error("SVG needs this; won't delete. Try removing other Commands first, exit edit mode to delete all, or edit this command instead.", {
+      toast.error(<CustomToastNoDelete/>, {
         toastId: `${shape}-${Object.keys(processedData.data[0])[0]}-${processedDataIndex}`
     })
       return
