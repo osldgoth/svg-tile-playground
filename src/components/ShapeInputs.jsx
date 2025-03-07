@@ -278,7 +278,9 @@ const ShapeInputs = ({ shape }) => {
     const sortedInputData = sortByAttributeOrder(inputData[shape])
 
     setProcessedData((previous) => {
-      const updatedProcessedData = { ...previous }
+      const updatedProcessedData = { ...previous,
+        data: [...previous.data]
+      }
       if(editIndex >= 0){
         updatedProcessedData.data.splice(editIndex, 1, sortedInputData) //at index, delete one, replace with updated info
       }else{
@@ -308,10 +310,11 @@ const ShapeInputs = ({ shape }) => {
     if (processedData?.data?.length === 0 && command !== 'M') { 
         updatedInputData.unshift({M:  { y: 0, x: 0 }})
       }
-
     setProcessedData((previous) => {
-      const updatedProcessedData = { ...previous }
-      if(editIndex > 0){ //TODO
+      const updatedProcessedData = { ...previous,
+        data: [...previous.data]
+      }
+      if(editIndex > 0){
         updatedProcessedData.data.splice(editIndex, 1, ...updatedInputData) //at index, delete one, replace with updated info
         //exit edit mode
       }else{
@@ -320,7 +323,7 @@ const ShapeInputs = ({ shape }) => {
       updatedProcessedData.SVGPath = createPathFromArrayOfObjects(updatedProcessedData.data)
       return updatedProcessedData
     });
-
+    
     setInputData((previousInputdata) => {
       const updatedInputData = { ...previousInputdata}
       delete updatedInputData[command]
@@ -399,8 +402,10 @@ const removeHighlightedSpans = (currentSelectedSpans) => {
       removeHighlightedSpans(currentSelectedSpans)
       hideEditArrows()
       setInputData({}) //this is where I'd reload any saved inputdata from overwriting in loadDataIntoInputs
-      setProcessedData((previousProcessedData) => {
-        const updatedProcessedData = { ...previousProcessedData }
+      setProcessedData((previous) => {
+        const updatedProcessedData = { ...previous,
+          data: [...previous.data]
+        }
         updatedProcessedData["bg-primary-subtle"] = -1
         return updatedProcessedData
       })
@@ -423,8 +428,10 @@ const removeHighlightedSpans = (currentSelectedSpans) => {
           [shape]: processedData.data[lastShapeDataSpanIndex]
         })
       }
-      setProcessedData((previousProcessedData) => {
-        const updatedProcessedData = { ...previousProcessedData }
+      setProcessedData((previous) => {
+        const updatedProcessedData = { ...previous,
+          data: [...previous.data]
+        }
         updatedProcessedData["bg-primary-subtle"] = lastShapeDataSpanIndex
         return updatedProcessedData
       })
@@ -459,8 +466,10 @@ const removeHighlightedSpans = (currentSelectedSpans) => {
     if(processedDataIndex >= 0){
       const nextSpanToHighlight = getNextSpanIndex(processedDataIndex, processedData.data.length)
 
-      setProcessedData((previousProcessedData) => {
-        const updatedProcessedData = { ...previousProcessedData }
+      setProcessedData((previous) => {
+        const updatedProcessedData = { ...previous,
+          data: [...previous.data]
+        }
         updatedProcessedData?.data?.splice(processedDataIndex, 1) //delete 1 item at index
         updatedProcessedData["bg-primary-subtle"] = nextSpanToHighlight
         
@@ -510,8 +519,10 @@ const removeHighlightedSpans = (currentSelectedSpans) => {
           [shape]: processedData.data[processedDataIndex + 1]
         })
       }
-      setProcessedData((previousProcessedData) => {
-        const updatedProcessedData = { ...previousProcessedData }
+      setProcessedData((previous) => {
+        const updatedProcessedData = { ...previous,
+          data: [...previous.data]
+        }
         updatedProcessedData["bg-primary-subtle"] = processedDataIndex + 1
         return updatedProcessedData
       })
@@ -534,8 +545,10 @@ const removeHighlightedSpans = (currentSelectedSpans) => {
           [shape]: processedData.data[processedDataIndex - 1]
         })
       }
-      setProcessedData((previousProcessedData) => {
-        const updatedProcessedData = { ...previousProcessedData }
+      setProcessedData((previous) => {
+        const updatedProcessedData = { ...previous,
+          data: [...previous.data]
+        }
         updatedProcessedData["bg-primary-subtle"] = processedDataIndex - 1
         return updatedProcessedData
       })
@@ -610,7 +623,9 @@ const removeHighlightedSpans = (currentSelectedSpans) => {
 
   const handleZCommand = () => {
     setProcessedData((previous) => {
-      const updatedProcessedData = { ...previous }
+      const updatedProcessedData = { ...previous,
+        data: [...previous.data]
+      }
       if(updatedProcessedData.data.length === 0) return updatedProcessedData
       updatedProcessedData.data.push({'Z': {}})
       updatedProcessedData.SVGPath = createPathFromArrayOfObjects(updatedProcessedData.data)
