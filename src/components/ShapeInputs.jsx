@@ -324,7 +324,7 @@ const ShapeInputs = ({ shape }) => {
 
     setProcessedData((previous) => {
       const updatedProcessedData = { ...previous }
-      if(editIndex > 0){ //TODO
+      if(editIndex > 0 || editIndex === 0 && command === 'M'){ //TODO
         updatedProcessedData.data.splice(editIndex, 1, ...updatedInputData) //at index, delete one, replace with updated info
         //exit edit mode
       }else{
