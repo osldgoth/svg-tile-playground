@@ -12,7 +12,7 @@ const PathCommandMapDetails = ({pathCommands, shape, closePathCoordinates, input
     :
     ''
     
-    const commandInputButtonText = editIndex > 0 
+    const commandInputButtonText = editIndex > 0 || editIndex === 0 && command === 'M'
     ?
     `Replace at index ${editIndex}: ${command} ${addCommandDataText}`
     :
