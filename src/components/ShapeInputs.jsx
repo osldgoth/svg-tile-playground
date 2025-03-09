@@ -588,7 +588,7 @@ const removeHighlightedSpans = (currentSelectedSpans) => {
       const space = array.length - 1 === index ? '' : ' '
       let spanText = `${keyCommand} ${values}${space}`
       if(keyCommand === "Z"){
-        spanText = spanText.trim()
+        spanText = spanText.trim().concat(space)
       }
       return <span key={`${keyCommand}-${values}-${index}`} id={`${values} ${index}`}
                    className={highlight}
