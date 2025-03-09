@@ -26,7 +26,7 @@ const SVGForm = () => {
   const handleFormSubmission = (event) => {
     event.preventDefault()
     const basic = populateBasic(inputData, shapeName.toLowerCase())
-    setBasic(basic)
+    //setBasic(basic)
     setAllSVGs([{shapeName, processedData, basic}, ...allSVGs])
       //reset state to defaults
     setShapeName("")
