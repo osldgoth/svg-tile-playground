@@ -26,7 +26,7 @@ const PolyParametersMapDetails = ({ polyParameters, shape, MIN, MAX, inputData, 
           <div key={ `${shape}-${parameter}-${index}` }>
             <label>
               { label }
-              <input id={ `${parameter} ${shape}` } 
+              <input id={ `${parameter} ${shape.toLowerCase()}` } 
                 min={ MIN } max={ MAX}
                 type='number'
                 onChange={ event => handlers.handleAttributeChange(event, parameter, '', shape) }
