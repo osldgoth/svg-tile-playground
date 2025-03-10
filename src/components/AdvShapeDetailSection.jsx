@@ -6,12 +6,12 @@ const AdvShapeDetailSection = ({attribute, label, pathHTML, polyHTML, handleEdit
     <h5>{label}</h5>
     <p id='shapeData' >
       {attribute}=
-      <i className="d-none bi bi-box-arrow-in-left" onClick={() => handleEditCoordLeft(shape.toLowerCase())}></i>
+      <button type="button" className="d-none btn btn-secondary btn-xs" onClick={() => handleEditCoordLeft(shape.toLowerCase())}>Left</button>
       &apos;
       { pathHTML.length ? pathHTML: null }
       { polyHTML.length ? polyHTML: null }
       &apos;
-      <i className="d-none bi bi-box-arrow-in-right" onClick={() => handleEditCoordRight(shape.toLowerCase())}></i>
+      <button type="button" className="d-none btn btn-secondary btn-xs" onClick={() => handleEditCoordRight(shape.toLowerCase())}>Right</button>
       {editDeleteButtons}
     </p>
   </section>

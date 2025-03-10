@@ -453,12 +453,12 @@ const removeHighlightedSpans = (currentSelectedSpans) => {
   }
 
   const showEditArrows = ()=> {
-    const arrows = document.querySelectorAll("#shapeData > i");
+    const arrows = document.querySelectorAll("#shapeData > button");
     arrows.forEach(iElement => iElement.classList.replace("d-none", "d-inline"));
   }
   
   const hideEditArrows = () => {
-    const arrows = document.querySelectorAll("#shapeData > i");
+    const arrows = document.querySelectorAll("#shapeData > button");
     arrows.forEach(iElement => iElement.classList.replace("d-inline", "d-none"));
   }
 
