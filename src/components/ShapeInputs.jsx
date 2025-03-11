@@ -1,5 +1,4 @@
 import { useContext, useEffect} from 'react';
-import { ToastContainer, toast } from 'react-toastify'
 import { Context } from './SVGContext';
 import PropTypes from 'prop-types';
 import AdvShapeDetailSection from './AdvShapeDetailSection';
@@ -192,7 +191,7 @@ const advancedShapeConfig = {
   ],
 }
 
-const ShapeInputs = ({ shape }) => {
+const ShapeInputs = ({ shape, toast }) => {
   const {
           inputData, setInputData, 
           processedData, setProcessedData,
@@ -207,6 +206,17 @@ const ShapeInputs = ({ shape }) => {
       return basicShapeConfig[shape]?.defaultShape || advancedShapeConfig[shape]?.[0]?.defaultShape || {}
     })
   }, [setDefaultShape, shape])
+
+  const CustomToastNoDelete = () => (
+    <div>
+      <p>SVG needs this; Won&apos;t delete.</p>
+      <ul>
+        <li>Remove other Commands first</li>
+        <li>Exit edit mode to delete all</li>
+        <li>Edit this command instead.</li>
+      </ul>
+    </div>
+  )
 
   const validateElements = (command) => {
     const validity = []
@@ -224,6 +234,8 @@ const ShapeInputs = ({ shape }) => {
       const invalidElement = inputElements[validity.indexOf(false)]
       if(invalidElement){
         invalidElement.reportValidity()
+        const labelText = invalidElement?.labels[0]?.innerText || 'Input'
+        toast.error(`${labelText} needs to be filled!`)
       }
       inputElements.forEach(element => {
         element.removeAttribute('required')
@@ -278,7 +290,9 @@ const ShapeInputs = ({ shape }) => {
     const sortedInputData = sortByAttributeOrder(inputData[shape])
 
     setProcessedData((previous) => {
-      const updatedProcessedData = { ...previous }
+      const updatedProcessedData = { ...previous,
+        data: [...previous.data]
+      }
       if(editIndex >= 0){
         updatedProcessedData.data.splice(editIndex, 1, sortedInputData) //at index, delete one, replace with updated info
       }else{
@@ -308,10 +322,12 @@ const ShapeInputs = ({ shape }) => {
     if (processedData?.data?.length === 0 && command !== 'M') { 
         updatedInputData.unshift({M:  { y: 0, x: 0 }})
       }
-
     setProcessedData((previous) => {
-      const updatedProcessedData = { ...previous }
-      if(editIndex > 0){ //TODO
+      const updatedProcessedData = { ...previous,
+        data: [...previous.data]
+      }
+    
+      if(editIndex > 0 || editIndex === 0 && command === 'M'){
         updatedProcessedData.data.splice(editIndex, 1, ...updatedInputData) //at index, delete one, replace with updated info
         //exit edit mode
       }else{
@@ -320,7 +336,7 @@ const ShapeInputs = ({ shape }) => {
       updatedProcessedData.SVGPath = createPathFromArrayOfObjects(updatedProcessedData.data)
       return updatedProcessedData
     });
-
+    
     setInputData((previousInputdata) => {
       const updatedInputData = { ...previousInputdata}
       delete updatedInputData[command]
@@ -399,8 +415,10 @@ const removeHighlightedSpans = (currentSelectedSpans) => {
       removeHighlightedSpans(currentSelectedSpans)
       hideEditArrows()
       setInputData({}) //this is where I'd reload any saved inputdata from overwriting in loadDataIntoInputs
-      setProcessedData((previousProcessedData) => {
-        const updatedProcessedData = { ...previousProcessedData }
+      setProcessedData((previous) => {
+        const updatedProcessedData = { ...previous,
+          data: [...previous.data]
+        }
         updatedProcessedData["bg-primary-subtle"] = -1
         return updatedProcessedData
       })
@@ -423,8 +441,10 @@ const removeHighlightedSpans = (currentSelectedSpans) => {
           [shape]: processedData.data[lastShapeDataSpanIndex]
         })
       }
-      setProcessedData((previousProcessedData) => {
-        const updatedProcessedData = { ...previousProcessedData }
+      setProcessedData((previous) => {
+        const updatedProcessedData = { ...previous,
+          data: [...previous.data]
+        }
         updatedProcessedData["bg-primary-subtle"] = lastShapeDataSpanIndex
         return updatedProcessedData
       })
@@ -432,12 +452,12 @@ const removeHighlightedSpans = (currentSelectedSpans) => {
   }
 
   const showEditArrows = ()=> {
-    const arrows = document.querySelectorAll("#shapeData > i");
+    const arrows = document.querySelectorAll("#shapeData > button");
     arrows.forEach(iElement => iElement.classList.replace("d-none", "d-inline"));
   }
   
   const hideEditArrows = () => {
-    const arrows = document.querySelectorAll("#shapeData > i");
+    const arrows = document.querySelectorAll("#shapeData > button");
     arrows.forEach(iElement => iElement.classList.replace("d-inline", "d-none"));
   }
 
@@ -451,7 +471,7 @@ const removeHighlightedSpans = (currentSelectedSpans) => {
   const handleAdvShapeProcessedDataDelete = (shape) => {
     const processedDataIndex = Number(document.getElementsByClassName("bg-primary-subtle")[0]?.dataset.processeddataIndex)
     if(processedDataIndex === 0 && processedData.data.length > 1 && Object.keys(processedData.data[0])[0] === 'M'){ //don't delete that one; svg complains if it is missing
-      toast.error("SVG needs this; won't delete. Try removing other Commands first, exit edit mode to delete all, or edit this command instead.", {
+      toast.error(<CustomToastNoDelete/>, {
         toastId: `${shape}-${Object.keys(processedData.data[0])[0]}-${processedDataIndex}`
     })
       return
@@ -459,8 +479,10 @@ const removeHighlightedSpans = (currentSelectedSpans) => {
     if(processedDataIndex >= 0){
       const nextSpanToHighlight = getNextSpanIndex(processedDataIndex, processedData.data.length)
 
-      setProcessedData((previousProcessedData) => {
-        const updatedProcessedData = { ...previousProcessedData }
+      setProcessedData((previous) => {
+        const updatedProcessedData = { ...previous,
+          data: [...previous.data]
+        }
         updatedProcessedData?.data?.splice(processedDataIndex, 1) //delete 1 item at index
         updatedProcessedData["bg-primary-subtle"] = nextSpanToHighlight
         
@@ -510,8 +532,10 @@ const removeHighlightedSpans = (currentSelectedSpans) => {
           [shape]: processedData.data[processedDataIndex + 1]
         })
       }
-      setProcessedData((previousProcessedData) => {
-        const updatedProcessedData = { ...previousProcessedData }
+      setProcessedData((previous) => {
+        const updatedProcessedData = { ...previous,
+          data: [...previous.data]
+        }
         updatedProcessedData["bg-primary-subtle"] = processedDataIndex + 1
         return updatedProcessedData
       })
@@ -534,8 +558,10 @@ const removeHighlightedSpans = (currentSelectedSpans) => {
           [shape]: processedData.data[processedDataIndex - 1]
         })
       }
-      setProcessedData((previousProcessedData) => {
-        const updatedProcessedData = { ...previousProcessedData }
+      setProcessedData((previous) => {
+        const updatedProcessedData = { ...previous,
+          data: [...previous.data]
+        }
         updatedProcessedData["bg-primary-subtle"] = processedDataIndex - 1
         return updatedProcessedData
       })
@@ -561,7 +587,7 @@ const removeHighlightedSpans = (currentSelectedSpans) => {
       const space = array.length - 1 === index ? '' : ' '
       let spanText = `${keyCommand} ${values}${space}`
       if(keyCommand === "Z"){
-        spanText = spanText.trim()
+        spanText = spanText.trim().concat(space)
       }
       return <span key={`${keyCommand}-${values}-${index}`} id={`${values} ${index}`}
                    className={highlight}
@@ -610,7 +636,9 @@ const removeHighlightedSpans = (currentSelectedSpans) => {
 
   const handleZCommand = () => {
     setProcessedData((previous) => {
-      const updatedProcessedData = { ...previous }
+      const updatedProcessedData = { ...previous,
+        data: [...previous.data]
+      }
       if(updatedProcessedData.data.length === 0) return updatedProcessedData
       updatedProcessedData.data.push({'Z': {}})
       updatedProcessedData.SVGPath = createPathFromArrayOfObjects(updatedProcessedData.data)
@@ -726,12 +754,6 @@ const basicShapeInputsWithRandom = basicShapeConfig[shape] &&
   };
 
   return <>
-    <ToastContainer
-      hideProgressBar={false}
-      closeOnClick={true}
-      draggable
-      theme="dark"
-    />
     {basicShapeInputsWithRandom}
     {advShapeInputs}
   </>;
@@ -739,6 +761,7 @@ const basicShapeInputsWithRandom = basicShapeConfig[shape] &&
 
 ShapeInputs.propTypes = {
   shape: PropTypes.string,
+  toast: PropTypes.func
 };
 
 export default ShapeInputs;

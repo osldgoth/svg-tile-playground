@@ -18,7 +18,7 @@ export const handleEdit = (event, setAllSVGs, allSVGs, setShapeName, setInputDat
   setBasic('')
   //then delete svg out of allsvgs
   setAllSVGs( (previousAllSVGs) => {
-    [...previousAllSVGs.filter((_, i) => i !== indexAsInt)]
+    return [...previousAllSVGs.filter((_, i) => i !== indexAsInt)]
   })
 }
 
