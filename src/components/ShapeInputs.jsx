@@ -1,5 +1,4 @@
 import { useContext, useEffect} from 'react';
-import { ToastContainer, toast } from 'react-toastify'
 import { Context } from './SVGContext';
 import PropTypes from 'prop-types';
 import AdvShapeDetailSection from './AdvShapeDetailSection';
@@ -192,7 +191,7 @@ const advancedShapeConfig = {
   ],
 }
 
-const ShapeInputs = ({ shape }) => {
+const ShapeInputs = ({ shape, toast }) => {
   const {
           inputData, setInputData, 
           processedData, setProcessedData,
@@ -755,12 +754,6 @@ const basicShapeInputsWithRandom = basicShapeConfig[shape] &&
   };
 
   return <>
-    <ToastContainer
-      hideProgressBar={false}
-      closeOnClick={true}
-      draggable
-      theme="dark"
-    />
     {basicShapeInputsWithRandom}
     {advShapeInputs}
   </>;
@@ -768,6 +761,7 @@ const basicShapeInputsWithRandom = basicShapeConfig[shape] &&
 
 ShapeInputs.propTypes = {
   shape: PropTypes.string,
+  toast: PropTypes.func
 };
 
 export default ShapeInputs;
