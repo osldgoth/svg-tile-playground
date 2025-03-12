@@ -1,5 +1,4 @@
 import { useContext, useEffect} from 'react';
-import { ToastContainer, toast } from 'react-toastify'
 import { Context } from './SVGContext';
 import PropTypes from 'prop-types';
 import AdvShapeDetailSection from './AdvShapeDetailSection';
@@ -192,7 +191,7 @@ const advancedShapeConfig = {
   ],
 }
 
-const ShapeInputs = ({ shape }) => {
+const ShapeInputs = ({ shape, toast }) => {
   const {
           inputData, setInputData, 
           processedData, setProcessedData,
@@ -327,10 +326,7 @@ const ShapeInputs = ({ shape }) => {
       const updatedProcessedData = { ...previous,
         data: [...previous.data]
       }
-      if(editIndex > 0 || editIndex === 0 && command === 'M'){
-      const updatedProcessedData = { ...previous,
-        data: [...previous.data]
-      }
+    
       if(editIndex > 0 || editIndex === 0 && command === 'M'){
         updatedProcessedData.data.splice(editIndex, 1, ...updatedInputData) //at index, delete one, replace with updated info
         //exit edit mode
@@ -456,12 +452,12 @@ const removeHighlightedSpans = (currentSelectedSpans) => {
   }
 
   const showEditArrows = ()=> {
-    const arrows = document.querySelectorAll("#shapeData > i");
+    const arrows = document.querySelectorAll("#shapeData > button");
     arrows.forEach(iElement => iElement.classList.replace("d-none", "d-inline"));
   }
   
   const hideEditArrows = () => {
-    const arrows = document.querySelectorAll("#shapeData > i");
+    const arrows = document.querySelectorAll("#shapeData > button");
     arrows.forEach(iElement => iElement.classList.replace("d-inline", "d-none"));
   }
 
@@ -591,7 +587,7 @@ const removeHighlightedSpans = (currentSelectedSpans) => {
       const space = array.length - 1 === index ? '' : ' '
       let spanText = `${keyCommand} ${values}${space}`
       if(keyCommand === "Z"){
-        spanText = spanText.trim()
+        spanText = spanText.trim().concat(space)
       }
       return <span key={`${keyCommand}-${values}-${index}`} id={`${values} ${index}`}
                    className={highlight}
@@ -758,12 +754,6 @@ const basicShapeInputsWithRandom = basicShapeConfig[shape] &&
   };
 
   return <>
-    <ToastContainer
-      hideProgressBar={false}
-      closeOnClick={true}
-      draggable
-      theme="dark"
-    />
     {basicShapeInputsWithRandom}
     {advShapeInputs}
   </>;
@@ -771,6 +761,7 @@ const basicShapeInputsWithRandom = basicShapeConfig[shape] &&
 
 ShapeInputs.propTypes = {
   shape: PropTypes.string,
+  toast: PropTypes.func
 };
 
 export default ShapeInputs;

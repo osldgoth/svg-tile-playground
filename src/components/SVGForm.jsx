@@ -2,6 +2,7 @@ import {useContext} from 'react'
 import ShapeInputs from './ShapeInputs'
 import { Context } from "./SVGContext"
 import SVGTile from './SVGTile'
+import { ToastContainer, toast } from 'react-toastify'
 
 const SVGForm = () => {
   const {
@@ -26,7 +27,11 @@ const SVGForm = () => {
   const handleFormSubmission = (event) => {
     event.preventDefault()
     const basic = populateBasic(inputData, shapeName.toLowerCase())
-    setBasic(basic)
+    
+    if(isAdvShape(shapeName.toLowerCase()) && processedData.data.length <= 1) {
+      toast.error(`Create a ${shapeName} first!`)
+      return
+    }
     setAllSVGs([{shapeName, processedData, basic}, ...allSVGs])
       //reset state to defaults
     setShapeName("")
@@ -57,7 +62,7 @@ const SVGForm = () => {
         })}
       </select>
 
-      <ShapeInputs shape={shapeName.toUpperCase()} />
+      <ShapeInputs shape={shapeName.toUpperCase()} toast={toast} />
       <SVGTile index={-1} svgData={{shapeName, processedData, basic}}/>
       {shapeName &&
         <>
@@ -65,9 +70,13 @@ const SVGForm = () => {
           <button type='submit' className='submit-svg-form my-3'>Save SVG</button>
         </>
       }
-      
+      <ToastContainer
+      hideProgressBar={false}
+      closeOnClick={true}
+      draggable
+      theme="dark"
+    />
     </form>
-      
   )
 }
 
